@@ -58,11 +58,11 @@ Operations involving 2 registers
 * 8XY4: VX += VY (VF set to 1 on carry)
 * 8XY5: VX = VX - VY (VF set to 0 on borrow)
 * 8XY7: VX = VY - VX (VF set to 0 on borrow)
-* 8XY6: VX = VX >> 1 (VF set to bit shifted out)
-* 8XYE: VX = VX << 1 (VF set to bit shifted out)
 
 Operations involving only 1 general purpose register:
 
+* 8X06: VX = VX >> 1 (VF set to bit shifted out) - Discrepency between wikipedia and other sites on this opcode
+* 8X0E: VX = VX << 1 (VF set to bit shifted out) - Discrepency between wikipedia and other sites on this opcode
 * EX9E: Skip next instruction if key stored in VX is pressed
 * EXA1: Skip next instruction if key stored in VX is not pressed
 * FX0A: Wait for key press, store in VX
