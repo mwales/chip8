@@ -18,8 +18,6 @@ public:
 
 protected:
 
-   //string theDisassembly;
-
    vector< pair<unsigned int, string> > theDisassembly;
 
    void insBad(unsigned opCode);

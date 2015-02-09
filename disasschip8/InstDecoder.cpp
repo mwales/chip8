@@ -31,7 +31,7 @@
 
 InstDecoder::InstDecoder()
 {
-   theAddress = 0x200 - 0x2; // Start address for all ROMs
+   theAddress = 0x200; // Start address for all ROMs
 }
 
 bool InstDecoder::decodeInstruction(unsigned char* opCode)
@@ -40,8 +40,6 @@ bool InstDecoder::decodeInstruction(unsigned char* opCode)
    unsigned int prefix = word & MASK_PREFIX;
 
    bool retCode = false;
-
-   theAddress += 2;
 
    //printf("word = 0x%04x, prefix=0x%04x\n", word, prefix);
 
@@ -99,6 +97,8 @@ bool InstDecoder::decodeInstruction(unsigned char* opCode)
       insBad(word);
    }
 
+   theAddress += 2;
+
    return retCode;
 }
 
@@ -150,8 +150,6 @@ bool InstDecoder::decodeRegisterConstantIns(unsigned int opCode)
    unsigned regNum =  (opCode & MASK_DEST_REG) >> 8;
    unsigned value = opCode & MASK_CONSTANTS;
 
-   //printf("decodeRegisterConstantIns opCode=0x%04x, regNum = %ud, value = %ud\n", opCode, regNum, value);
-
    switch(opCode & MASK_PREFIX)
    {
       case PREFIX_SKIP_NEXT_EQ_CONST:
@@ -184,8 +182,6 @@ bool InstDecoder::decodeTwoRegistersIns(unsigned int opCode)
    unsigned int src = (opCode & 0x00f0) >> 4;
 
    unsigned int noParmOpCode = opCode & 0xf00f;
-
-   //printf("decodingTwoRegisterIns.  opcode = 0x%04x, noParmOpCode=0x%04x\n", opCode, noParmOpCode);
 
    switch(noParmOpCode)
    {
@@ -242,8 +238,6 @@ bool InstDecoder::decodeOneRegisterIns(unsigned int opCode)
    unsigned int reg = (opCode & MASK_DEST_REG) >> 8;
 
    unsigned int noParmOpCode = opCode & 0xf0ff;
-
-   //printf("decodeOneRegisterIns.  opcode = 0x%04x, noParmOpCode=0x%04x\n", opCode, noParmOpCode);
 
    switch(noParmOpCode)
    {

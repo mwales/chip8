@@ -20,8 +20,6 @@ void Disassembler::insClearScreen()
    curIns.second = "clear_screen";
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 void Disassembler::insReturnFromSub()
@@ -31,8 +29,6 @@ void Disassembler::insReturnFromSub()
    curIns.second = "ret";
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 void Disassembler::insJump(unsigned addr)
@@ -45,8 +41,6 @@ void Disassembler::insJump(unsigned addr)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -60,8 +54,6 @@ void Disassembler::insCall(unsigned addr)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -75,8 +67,6 @@ void Disassembler::insSetIndexReg(unsigned addr)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -90,8 +80,6 @@ void Disassembler::insJumpWithOffset(unsigned addr)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -105,8 +93,6 @@ void Disassembler::insSkipNextIfRegEqConst(unsigned reg, unsigned val)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -120,8 +106,6 @@ void Disassembler::insSkipNextIfRegNotEqConst(unsigned reg, unsigned val)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -135,8 +119,6 @@ void Disassembler::insSetReg(unsigned reg, unsigned val)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -150,8 +132,6 @@ void Disassembler::insAddReg(unsigned reg, unsigned val)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -165,8 +145,6 @@ void Disassembler::insRandomNum(unsigned reg, unsigned mask)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -180,8 +158,6 @@ void Disassembler::insSkipNextIfRegEq(unsigned reg1, unsigned reg2)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -195,8 +171,6 @@ void Disassembler::insSkipNextIfRegNotEq(unsigned reg1, unsigned reg2)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -210,8 +184,6 @@ void Disassembler::insSetRegToRegVal(unsigned regToSet, unsigned regVal)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -225,8 +197,6 @@ void Disassembler::insOrReg(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -240,8 +210,6 @@ void Disassembler::insAndReg(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -255,8 +223,6 @@ void Disassembler::insXorReg(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -270,8 +236,6 @@ void Disassembler::insAddRegs(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -285,8 +249,6 @@ void Disassembler::insSubRegs(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -300,8 +262,6 @@ void Disassembler::insSubRegsOtherOrder(unsigned reg, unsigned otherReg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -315,8 +275,6 @@ void Disassembler::insRightShift(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -330,8 +288,6 @@ void Disassembler::insLeftShift(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -345,8 +301,6 @@ void Disassembler::insSkipNextIfKeyPressed(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -360,8 +314,6 @@ void Disassembler::insSkipNextIfKeyNotPressed(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 void Disassembler::insWaitForKeyPress(unsigned reg)
@@ -374,8 +326,6 @@ void Disassembler::insWaitForKeyPress(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -389,8 +339,6 @@ void Disassembler::insSetRegToDelayTimer(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -404,8 +352,6 @@ void Disassembler::insSetDelayTimer(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -419,8 +365,6 @@ void Disassembler::insSetSoundTimer(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -434,8 +378,6 @@ void Disassembler::insAddRegToIndexReg(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -449,8 +391,6 @@ void Disassembler::insSetIndexToCharInReg(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -464,8 +404,6 @@ void Disassembler::insSetIndexMemoryToRegBcd(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -479,8 +417,6 @@ void Disassembler::insStoreRegsToIndexMemory(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -494,8 +430,6 @@ void Disassembler::insLoadRegsFromIndexMemory(unsigned reg)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 
@@ -509,14 +443,10 @@ void Disassembler::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
 void Disassembler::printDisassembly()
 {
-   //printf("%s\n", theDisassembly.c_str());
-
    vector< pair<unsigned int, string> >::iterator curIns = theDisassembly.begin();
    while(curIns != theDisassembly.end())
    {
@@ -537,7 +467,5 @@ void Disassembler::insBad(unsigned opCode)
    curIns.second = ss.str();
 
    theDisassembly.push_back(curIns);
-
-   // theAddress += 0x2;
 }
 
