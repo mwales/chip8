@@ -14,7 +14,7 @@ class Disassembler : public InstDecoder
 public:
    Disassembler();
 
-   void printDisassembly();
+   virtual void printDisassembly();
 
 protected:
 

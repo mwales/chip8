@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "InstDecoder.h"
-#include "Disassembler.h"
+#include "RecursiveDisass.h"
 
 int main(int argc, char** argv)
 {
@@ -20,14 +20,13 @@ int main(int argc, char** argv)
 
    unsigned int address = 0x200;
 
-   unsigned char instruction[3];
-   instruction[2] = 0; // null terminate string
+   unsigned char instruction;
 
-   Disassembler da;
+   RecursiveDisass da;
 
    while(true)
    {
-      instruction[0] = fgetc(romFile);
+      instruction = fgetc(romFile);
 
       if (feof(romFile))
       {
@@ -35,34 +34,16 @@ int main(int argc, char** argv)
          break;
       }
 
-
-
-
-      instruction[1] = fgetc(romFile);
-
-      if (feof(romFile))
-      {
-         printf("End of file.  Ended with an odd number of bytes!\n");
-         printf("i[0] = 0x%02x, i[1] = 0x%02x\n", instruction[0], instruction[1]);
-         break;
-      }
-
-
-
       // Decode instruction
-      bool success = da.decodeInstruction( instruction);
+      da.loadRomByte(instruction);
 
-      if (!success)
-      {
-         printf("Error at address=0x%04x, opcode=0x%02x%02x\n", address, instruction[0], instruction[1]);
-      }
-
-      address += 2;
    }
 
    fclose(romFile);
 
    printf("\nDisassembler Output:\n");
+
+   da.decodeCodeSegment(0x200);
 
    da.printDisassembly();
  
