@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -15,11 +17,21 @@ public:
    explicit MainWindow(QWidget *parent = 0);
    ~MainWindow();
 
+
+
 protected:
 
    void keyPressEvent ( QKeyEvent * event );
 
    void keyReleaseEvent ( QKeyEvent * event );
+
+protected slots:
+
+   void loadRom();
+
+   void aboutApplication();
+
+   void aboutQt();
 
 private:
    Ui::MainWindow *ui;
