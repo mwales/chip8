@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <utility>
+#include <map>
 
 #include "InstDecoder.h"
 
@@ -18,7 +18,7 @@ public:
 
 protected:
 
-   vector< pair<unsigned int, string> > theDisassembly;
+   map <unsigned int, string> theDisassembly;
 
    void insBad(unsigned opCode);
 
