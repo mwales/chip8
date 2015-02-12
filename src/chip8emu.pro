@@ -14,9 +14,18 @@ TEMPLATE = app
 
 SOURCES += chip8emu.cpp\
         MainWindow.cpp \
-    EmulationScreen.cpp
+    EmulationScreen.cpp \
+    Emulator.cpp \
+    InstDecoder.cpp \
+    QSleeper.cpp \
+    CpuViewer.cpp
 
 HEADERS  += MainWindow.h \
-    EmulationScreen.h
+    EmulationScreen.h \
+    Emulator.h \
+    InstDecoder.h \
+    QSleeper.h \
+    CpuViewer.h
 
-FORMS    += MainWindow.ui
+FORMS    += MainWindow.ui \
+    CpuViewer.ui

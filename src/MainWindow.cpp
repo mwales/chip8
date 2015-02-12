@@ -1,6 +1,7 @@
 #include <QtDebug>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QFile>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -11,6 +12,7 @@ const int PIXEL_SIZE = 10;
 
 MainWindow::MainWindow(QWidget *parent) :
    QMainWindow(parent),
+   theCpuDialog(this),
    ui(new Ui::MainWindow)
 {
 
@@ -22,7 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
            this, SLOT(aboutApplication()));
    connect(ui->actionAboutQt, SIGNAL(triggered()),
            this, SLOT(aboutQt()));
-
+   connect(ui->actionCPU_Viewer, SIGNAL(triggered()),
+           &theCpuDialog, SLOT(show()));
 
 
    ui->theScreen->setPixel(1, 1, true);
@@ -59,7 +62,29 @@ void MainWindow::loadRom()
 
    dlg.exec();
 
-   qDebug() << "Selected Files" << dlg.selectedFiles();
+   if (dlg.selectedFiles().empty())
+      return;
+
+   unsigned char instruction;
+
+   FILE* romFile = fopen(dlg.selectedFiles().first().toStdString().c_str(), "r");
+
+   while(true)
+   {
+      instruction = fgetc(romFile);
+
+      if (feof(romFile))
+      {
+
+         break;
+      }
+
+      // Decode instruction
+      theEmulator.loadRomData(instruction);
+
+   }
+
+
 }
 
 void MainWindow::aboutApplication()

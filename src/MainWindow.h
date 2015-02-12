@@ -3,7 +3,8 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
-
+#include "CpuViewer.h"
+#include "Emulator.h"
 
 namespace Ui {
 class MainWindow;
@@ -34,6 +35,10 @@ protected slots:
    void aboutQt();
 
 private:
+   Emulator theEmulator;
+
+   CpuViewer theCpuDialog;
+
    Ui::MainWindow *ui;
 };
 

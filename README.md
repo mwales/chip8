@@ -191,3 +191,6 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 * Chip 8 instruction set (including superchip instructions):  http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
 
 * http://www.emulator101.com/
+
+* http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+* 

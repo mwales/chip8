@@ -42,7 +42,14 @@
     <addaction name="actionAboutQt"/>
     <addaction name="actionAboutEmulator"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionCPU_Viewer"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -59,6 +66,11 @@
   <action name="actionAboutEmulator">
    <property name="text">
     <string>About Emulator...</string>
+   </property>
+  </action>
+  <action name="actionCPU_Viewer">
+   <property name="text">
+    <string>CPU Viewer...</string>
    </property>
   </action>
  </widget>

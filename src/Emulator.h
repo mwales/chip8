@@ -1,12 +1,11 @@
 #ifndef EMULATOR_H
 #define EMULATOR_H
 
-#include "../disasschip8/InstDecoder.h"
-#include <stack>
-#include <vector>
-#include <set>
-
-using namespace std;
+#include "InstDecoder.h"
+#include <QVector>
+#include <QSet>
+#include <QStack>
+#include <QMutex>
 
 class Emulator : public InstDecoder
 {
@@ -25,13 +24,19 @@ public:
 
 protected:
 
-   vector<unsigned char> theCpuRegisters;
+   QVector<unsigned char> theCpuRegisters;
 
-   stack<unsigned int> theCpuStack;
+   QStack<unsigned int> theCpuStack;
 
-   vector<unsigned char> theMemory;
+   QVector<unsigned char> theMemory;
 
-   set<unsigned char> theKeysDown;
+   QSet<unsigned char> theKeysDown;
+
+   QMutex theKeysLock;
+
+   unsigned int theIndexRegister;
+
+   void loadFonts();
 
    void insClearScreen();
 
