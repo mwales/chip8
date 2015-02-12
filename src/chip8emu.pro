@@ -8,11 +8,11 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = testApp
+TARGET = chip8emu
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
+SOURCES += chip8emu.cpp\
         MainWindow.cpp \
     EmulationScreen.cpp
 
