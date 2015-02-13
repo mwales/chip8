@@ -6,17 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>816</width>
-    <height>317</height>
+    <width>620</width>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Chip-8 Emulator</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="EmulationScreen" name="theScreen" native="true"/>
+     <widget class="EmulationScreenWidget" name="screenWidget" native="true"/>
     </item>
    </layout>
   </widget>
@@ -25,7 +25,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>816</width>
+     <width>620</width>
      <height>23</height>
     </rect>
    </property>
@@ -34,6 +34,7 @@
      <string>File</string>
     </property>
     <addaction name="actionLoadRom"/>
+    <addaction name="actionStart_on_Load"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -73,13 +74,21 @@
     <string>CPU Viewer...</string>
    </property>
   </action>
+  <action name="actionStart_on_Load">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Start on Load</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>EmulationScreen</class>
+   <class>EmulationScreenWidget</class>
    <extends>QWidget</extends>
-   <header>EmulationScreen.h</header>
+   <header>EmulationScreenWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

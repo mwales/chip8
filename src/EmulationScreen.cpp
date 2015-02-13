@@ -1,50 +1,21 @@
-#include <QPainter>
-#include <QtDebug>
+
 
 #include "EmulationScreen.h"
 
-const int X_RES = 64;
-const int Y_RES = 32;
+const int EmulationScreen::X_RES = 64;
+const int EmulationScreen::Y_RES = 32;
 
-EmulationScreen::EmulationScreen(QWidget *parent) :
-   QWidget(parent)
+EmulationScreen::EmulationScreen()
 {
    for(int y = 0; y < Y_RES; y++)
    {
-      QVector<bool> curRowOfPixels;
+      vector<bool> curRowOfPixels;
       for(int x = 0; x < X_RES; x++)
       {
-         curRowOfPixels.append(false);
+         curRowOfPixels.push_back(false);
       }
-      thePixels.append(curRowOfPixels);
+      thePixels.push_back(curRowOfPixels);
    }
-}
-
-
-void EmulationScreen::paintEvent ( QPaintEvent * event )
-{
-   QPainter p(this);
-   p.setPen(Qt::blue);
-
-   int pixelWidth = width() / X_RES;
-   int pixelHeight = height() / Y_RES;
-
-   int xOffset = width() % X_RES / 2;
-   int yOffset = width() % Y_RES / 2;
-
-
-   for(int y = 0; y < Y_RES; y++)
-   {
-      for(int x = 0; x < X_RES; x++)
-      {
-         if (!thePixels[y][x])
-         {
-            p.fillRect(pixelWidth * x + xOffset, pixelHeight * y + yOffset, pixelWidth, pixelHeight, Qt::black);
-         }
-      }
-   }
-
-
 }
 
 void EmulationScreen::setPixel(int x, int y, bool val)
@@ -52,12 +23,50 @@ void EmulationScreen::setPixel(int x, int y, bool val)
    thePixels[y][x] = val;
 }
 
-void EmulationScreen::keyPressEvent ( QKeyEvent * event )
+bool EmulationScreen::drawSprite(unsigned int x, unsigned int y, vector<unsigned char> spriteData)
 {
-   qDebug() << "Key Pressed" << event->text();
+   bool pixelCleared = false;
+
+   unsigned int row = y;
+   for(unsigned int rowsProcessed = 0; rowsProcessed < spriteData.size(); rowsProcessed++)
+   {
+      unsigned int col = x;
+      for(unsigned int colsProcessed = 0; colsProcessed < 8; colsProcessed++)
+      {
+         unsigned char mask = 0x1 << (7-colsProcessed);
+
+         if ( (mask & spriteData[rowsProcessed]) &&
+              thePixels[row][col] )
+         {
+            // Bit is going to be cleared
+            pixelCleared = true;
+            thePixels[row][col] = false;
+         }
+         else
+         {
+            thePixels[row][col] = (mask & spriteData[rowsProcessed]);
+         }
+
+
+         col = (col + 1) % X_RES;
+      }
+
+      row = (row + 1) % Y_RES;
+   }
+
+   return pixelCleared;
 }
 
-void EmulationScreen::keyReleaseEvent ( QKeyEvent * event )
+void EmulationScreen::clearScreen()
 {
-   qDebug() << "Key Released" << event->text();
+   for(int y = 0; y < Y_RES; y++)
+   {
+      for(int x = 0; x < X_RES; x++)
+      {
+         thePixels[y][x] = false;
+      }
+
+   }
 }
+
+

@@ -11,6 +11,8 @@
 #define FONT_HEIGHT        5
 #define FONT_ADDR          0x0100
 
+const int MS_PER_TIMER_COUNT = 1000 / 60;
+
 Emulator::Emulator()
 {
    for (int i = 0; i < NUM_REGISTERS; i++)
@@ -27,23 +29,60 @@ Emulator::Emulator()
 
 }
 
+void Emulator::clearRomData()
+{
+   theRomData.clear();
+}
+
 void Emulator::loadRomData(unsigned char byte)
 {
-   qDebug() << "Load at" << theAddress << "of" << byte;
-
-   theMemory[theAddress] = byte;
-   theAddress += 1;
-
+   theRomData.append(byte);
 }
 
 void Emulator::resetEmulator()
 {
+   // Reset the IP
    theAddress = 0x0200;
+
+   // Clear everything
+   for(int i = 0; i < theMemory.size(); i++)
+   {
+      theMemory[i] = 0;
+   }
+
+   for(int i = 0; i < theCpuRegisters.size(); i++)
+   {
+      theCpuRegisters[i] = 0;
+   }
+
+   theIndexRegister = 0;
+   theKeysDown.clear();
+   theCpuStack.clear();
+
+   unsigned int loadAddr = theAddress;
+   for(int i = 0; i < theRomData.size(); i++)
+   {
+      theMemory[loadAddr++] = theRomData[i];
+   }
+
+   loadFonts();
+
+   theSoundTimerExpiration = QDateTime::currentDateTime();
+   theDelayTimerExpiration = QDateTime::currentDateTime();
 }
 
 void Emulator::executeInstruction()
 {
+   if (theAddress > (0x1000 - 2))
+   {
+      qDebug() << "Instruction address " << QString::number(theAddress, 16) << " out of bounds";
+      return;
+   }
 
+   unsigned char opCode[2];
+   opCode[0] = theMemory[theAddress];
+   opCode[1] = theMemory[theAddress+1];
+   decodeInstruction(opCode);
 }
 
 void Emulator::keyDown(unsigned char key)
@@ -60,13 +99,48 @@ void Emulator::keyUp(unsigned char key)
    theKeysLock.unlock();
 }
 
+void Emulator::setEmulationScreen(EmulationScreen* screen)
+{
+   theScreen = screen;
+}
+
+unsigned char Emulator::getRegister(unsigned char reg)
+{
+   if (reg >= 16)
+   {
+      qDebug() << "Illegal register value requested in " << __PRETTY_FUNCTION__;
+      return 0;
+   }
+
+   return theCpuRegisters[reg];
+}
+
+unsigned int Emulator::getIP()
+{
+   return theAddress;
+}
+
+unsigned int Emulator::getIndexRegister()
+{
+   return theIndexRegister;
+}
+
+QStack<unsigned int> Emulator::getStack()
+{
+   return theCpuStack;
+}
+
+
+
 
 void Emulator::insClearScreen()
 {
-   for(unsigned int addr = SCREEN_MEMORY_ADDR; addr < SCREEN_MEMORY_ADDR + SCREEN_MEMORY_SIZE; addr++)
-   {
-      theMemory[addr] = 0;
-   }
+//   for(unsigned int addr = SCREEN_MEMORY_ADDR; addr < SCREEN_MEMORY_ADDR + SCREEN_MEMORY_SIZE; addr++)
+//   {
+//      theMemory[addr] = 0;
+//   }
+
+   theScreen->clearScreen();
 }
 
 void Emulator::insReturnFromSub()
@@ -143,57 +217,111 @@ void Emulator::insSkipNextIfRegNotEq(unsigned reg1, unsigned reg2)
 
 void Emulator::insSetRegToRegVal(unsigned regToSet, unsigned regVal)
 {
-
+   theCpuRegisters[regToSet] = theCpuRegisters[regVal];
 }
 
 void Emulator::insOrReg(unsigned reg, unsigned otherReg)
 {
-
+   theCpuRegisters[reg] = theCpuRegisters[reg] | theCpuRegisters[otherReg];
 }
 
 void Emulator::insAndReg(unsigned reg, unsigned otherReg)
 {
-
+   theCpuRegisters[reg] = theCpuRegisters[reg] & theCpuRegisters[otherReg];
 }
 
 void Emulator::insXorReg(unsigned reg, unsigned otherReg)
 {
-
+   theCpuRegisters[reg] = theCpuRegisters[reg] ^ theCpuRegisters[otherReg];
 }
 
 void Emulator::insAddRegs(unsigned reg, unsigned otherReg)
 {
+   unsigned int res = theCpuRegisters[reg] + theCpuRegisters[otherReg];
+
+   if (res > 255)
+   {
+      theCpuRegisters[0xf] = 1;
+      theCpuRegisters[reg] = res % 256;
+   }
+   else
+   {
+      theCpuRegisters[0xf] = 0;
+      theCpuRegisters[reg] = res;
+   }
 
 }
 
 void Emulator::insSubRegs(unsigned reg, unsigned otherReg)
 {
+   if (theCpuRegisters[reg] > theCpuRegisters[otherReg])
+   {
+      theCpuRegisters[0xf] = 1;
+   }
+   else
+   {
+      theCpuRegisters[0xf] = 0;
+   }
 
+   theCpuRegisters[reg] -= theCpuRegisters[otherReg];
 }
 
 void Emulator::insSubRegsOtherOrder(unsigned reg, unsigned otherReg)
 {
+   if (theCpuRegisters[reg] < theCpuRegisters[otherReg])
+   {
+      theCpuRegisters[0xf] = 1;
+   }
+   else
+   {
+      theCpuRegisters[0xf] = 0;
+   }
 
+   theCpuRegisters[reg] = theCpuRegisters[otherReg] - theCpuRegisters[reg];
 }
 
 void Emulator::insRightShift(unsigned reg)
 {
+   if (theCpuRegisters[reg] & 0x1)
+   {
+      theCpuRegisters[0xf] = 1;
+   }
+   else
+   {
+      theCpuRegisters[0xf] = 0;
+   }
 
+   theCpuRegisters[reg] = theCpuRegisters[reg] >> 1;
 }
 
 void Emulator::insLeftShift(unsigned reg)
 {
+   if (theCpuRegisters[reg] & 0x8)
+   {
+      theCpuRegisters[0xf] = 1;
+   }
+   else
+   {
+      theCpuRegisters[0xf] = 0;
+   }
 
+   theCpuRegisters[reg] = theCpuRegisters[reg] << 1;
 }
 
 void Emulator::insSkipNextIfKeyPressed(unsigned reg)
 {
-
+   if (theKeysDown.contains(theCpuRegisters[reg]))
+   {
+      theAddress += 2;
+   }
 }
 
 void Emulator::insSkipNextIfKeyNotPressed(unsigned reg)
 {
-
+   if (!theKeysDown.contains(theCpuRegisters[reg]))
+   {
+      theAddress += 2;
+   }
 }
 
 void Emulator::insWaitForKeyPress(unsigned reg)
@@ -201,71 +329,130 @@ void Emulator::insWaitForKeyPress(unsigned reg)
    // Not sure what this thing would do if more than one key pressed at a time, so we will just return the first item
    // in the set unless I come up with a better idea
 
-   bool waitingForKey = true;
+//   bool waitingForKey = true;
+//   unsigned char keyPressed;
+//   while(waitingForKey)
+//   {
+//      theKeysLock.lock();
+
+//      waitingForKey = theKeysDown.isEmpty();
+
+//      if (!waitingForKey)
+//      {
+//         // Get a pressed key
+//         keyPressed = theKeysDown.toList().first();
+//      }
+
+//      theKeysLock.unlock();
+
+//      QSleeper::sleepMilliSecs(1);
+//   }
+
+//   theCpuRegisters[reg] = keyPressed;
+
+
+
    unsigned char keyPressed;
-   while(waitingForKey)
+
+   theKeysLock.lock();
+
+   bool waitingForKey = theKeysDown.isEmpty();
+
+   if (!waitingForKey)
    {
-      theKeysLock.lock();
-
-      waitingForKey = !theKeysDown.isEmpty();
-
-      if (!waitingForKey)
-      {
-         // Get a pressed key
-         keyPressed = theKeysDown.toList().first();
-      }
-
-      theKeysLock.unlock();
-
-      QSleeper::sleepMilliSecs(1);
+      // Get a pressed key
+      theCpuRegisters[reg] = theKeysDown.toList().first();
    }
 
-   theCpuRegisters[reg] = keyPressed;
+   theKeysLock.unlock();
+
+   if (waitingForKey)
+   {
+      // Rather than blocking, just move the IP back 2 and repeat this instruction over and over
+      theAddress -= 2;
+   }
+
+
 }
 
 void Emulator::insSetRegToDelayTimer(unsigned reg)
 {
+   QDateTime curTime = QDateTime::currentDateTime();
+
+   if (curTime > theDelayTimerExpiration)
+   {
+      theCpuRegisters[reg] = 0;
+   }
+   else
+   {
+      int numMilliSecs = curTime.msecsTo(theDelayTimerExpiration);
+      theCpuRegisters[reg] = numMilliSecs / MS_PER_TIMER_COUNT;
+   }
 
 }
 
 void Emulator::insSetDelayTimer(unsigned reg)
 {
-
+   theDelayTimerExpiration = QDateTime::currentDateTime();
+   theDelayTimerExpiration.addMSecs(theCpuRegisters[reg] * MS_PER_TIMER_COUNT);
 }
 
 void Emulator::insSetSoundTimer(unsigned reg)
 {
-
+   theSoundTimerExpiration = QDateTime::currentDateTime();
+   theSoundTimerExpiration.addMSecs(theCpuRegisters[reg] * MS_PER_TIMER_COUNT);
 }
 
 void Emulator::insAddRegToIndexReg(unsigned reg)
 {
-
+   theIndexRegister += theCpuRegisters[reg] % 0x10000;
 }
 
 void Emulator::insSetIndexToCharInReg(unsigned reg)
 {
-   theIndexRegister = FONT_ADDR + reg * FONT_HEIGHT;
+   theIndexRegister = FONT_ADDR + theCpuRegisters[reg] * FONT_HEIGHT;
 }
 
 void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
 {
+   unsigned char val = theCpuRegisters[reg];
 
+   theMemory[theIndexRegister] = val / 100;
+   val = val % 100;
+
+   theMemory[theIndexRegister] = val / 10;
+   val = val % 10;
+
+   theMemory[theIndexRegister] = val;
 }
 
 void Emulator::insStoreRegsToIndexMemory(unsigned reg)
 {
-
+   for(int i = 0; i <= reg; i++)
+   {
+      theMemory[theIndexRegister + i] = theCpuRegisters[i];
+   }
 }
 
 void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
 {
-
+   for(int i = 0; i <= reg; i++)
+   {
+      theCpuRegisters[i] = theMemory[theIndexRegister + i];
+   }
 }
 
 void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 {
+   vector<unsigned char> spriteData;
+   for(int i = 0; i < height; i++)
+   {
+      spriteData.push_back(theMemory[theIndexRegister+i]);
+   }
 
+   theScreen->drawSprite(theCpuRegisters[xReg] % 64,
+                         theCpuRegisters[yReg] % 32,
+                         spriteData);
 }
 
 void Emulator::insBad(unsigned opCode)
@@ -389,4 +576,25 @@ void Emulator::loadFonts()
    theMemory[addr++] = 0xf0;
    theMemory[addr++] = 0x80;
    theMemory[addr++] = 0x80;
+}
+
+void Emulator::run()
+{
+   theStopFlag = false;
+
+   while(!theStopFlag)
+   {
+      executeInstruction();
+
+      msleep(10);
+   }
+}
+
+void Emulator::stopEmulator()
+{
+   if (isRunning())
+   {
+      theStopFlag = true;
+      wait();
+   }
 }

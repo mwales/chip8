@@ -24,6 +24,15 @@ CpuViewer::CpuViewer(QWidget *parent) :
    theRegisters.append(ui->lineEdit_15);
    theRegisters.append(ui->lineEdit_16);
 
+   connect(ui->goButton, SIGNAL(clicked()),
+           this, SIGNAL(goPressed()));
+   connect(ui->pauseButton, SIGNAL(clicked()),
+           this, SIGNAL(pausePressed()));
+   connect(ui->resetButton, SIGNAL(clicked()),
+           this, SIGNAL(resetPressed()));
+   connect(ui->stepButton, SIGNAL(clicked()),
+           this, SIGNAL(stepPressed()));
+
 }
 
 void CpuViewer::setRegister(int reg, int val)
@@ -46,6 +55,15 @@ void CpuViewer::popStack()
    ui->callStack->takeItem(ui->callStack->count() - 1);
 }
 
+void CpuViewer::setStack(QStack<unsigned int> stack)
+{
+   ui->callStack->clear();
+   while(!stack.isEmpty())
+   {
+      pushStack(stack.pop());
+   }
+}
+
 void CpuViewer::setDelayTimer(unsigned int val)
 {
    ui->lineEdit_dt->setText(numToHex(val, 1));
@@ -54,6 +72,11 @@ void CpuViewer::setDelayTimer(unsigned int val)
 void CpuViewer::setSoundTimer(unsigned int val)
 {
    ui->lineEdit_st->setText(numToHex(val, 1));
+}
+
+void CpuViewer::setIndexRegister(unsigned int val)
+{
+   ui->lineEdit_index->setText(numToHex(val, 2));
 }
 
 QString CpuViewer::numToHex(int number, int numBytes)

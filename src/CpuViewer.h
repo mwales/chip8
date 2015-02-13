@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QVector>
 #include <QString>
+#include <QStack>
 
 namespace Ui {
 class CpuViewer;
@@ -26,11 +27,26 @@ public:
 
    void popStack();
 
+   void setStack(QStack<unsigned int> stack);
+
    void setDelayTimer(unsigned int val);
 
    void setSoundTimer(unsigned int val);
 
+   void setIndexRegister(unsigned int val);
+
    QString numToHex(int number, int numBytes);
+
+signals:
+
+   void goPressed();
+
+   void stepPressed();
+
+   void resetPressed();
+
+   void pausePressed();
+
 
 private:
    Ui::CpuViewer *ui;

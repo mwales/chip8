@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QKeyEvent>
+#include <QMap>
 #include "CpuViewer.h"
 #include "Emulator.h"
 
@@ -34,12 +35,25 @@ protected slots:
 
    void aboutQt();
 
+   void pauseEmulator();
+
+   void stepEmulator();
+
+   void runEmulator();
+
+   void resetEmulator();
+
 private:
+
+   void updateCpuViewer();
+
    Emulator theEmulator;
 
    CpuViewer theCpuDialog;
 
    Ui::MainWindow *ui;
+
+   QMap<char, unsigned char> theKeyMap;
 };
 
 #endif // MAINWINDOW_H

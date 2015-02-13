@@ -26,10 +26,47 @@ MainWindow::MainWindow(QWidget *parent) :
            this, SLOT(aboutQt()));
    connect(ui->actionCPU_Viewer, SIGNAL(triggered()),
            &theCpuDialog, SLOT(show()));
+   //connect(ui->screenWidget->goB)
+   connect(&theCpuDialog, SIGNAL(goPressed()),
+           this, SLOT(runEmulator()));
+   connect(&theCpuDialog, SIGNAL(pausePressed()),
+           this, SLOT(pauseEmulator()));
+   connect(&theCpuDialog, SIGNAL(resetPressed()),
+           this, SLOT(resetEmulator()));
+   connect(&theCpuDialog, SIGNAL(stepPressed()),
+           this, SLOT(stepEmulator()));
 
 
-   ui->theScreen->setPixel(1, 1, true);
+   ui->screenWidget->setPixel(1, 1, true);
 
+   theEmulator.setEmulationScreen(ui->screenWidget);
+
+   // Not sure how standardized Chip-8 emulators are, but I'm using JChip8 as reference so I'll map my keys
+   // the same as that emulator.
+
+   //   Original Chip8            JChip8
+
+   //      1  2  3  C            1  2  3  4
+   //      4  5  6  D    --->    Q  W  E  R
+   //      7  8  9  E            A  S  D  F
+   //      A  0  B  F            Z  X  C  V
+
+   theKeyMap.insert('x', 0x0);
+   theKeyMap.insert('1', 0x1);
+   theKeyMap.insert('2', 0x2);
+   theKeyMap.insert('3', 0x3);
+   theKeyMap.insert('q', 0x4);
+   theKeyMap.insert('w', 0x5);
+   theKeyMap.insert('e', 0x6);
+   theKeyMap.insert('a', 0x7);
+   theKeyMap.insert('s', 0x8);
+   theKeyMap.insert('d', 0x9);
+   theKeyMap.insert('z', 0xa);
+   theKeyMap.insert('c', 0xb);
+   theKeyMap.insert('4', 0xc);
+   theKeyMap.insert('r', 0xd);
+   theKeyMap.insert('f', 0xe);
+   theKeyMap.insert('v', 0xf);
 }
 
 MainWindow::~MainWindow()
@@ -40,16 +77,20 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent ( QKeyEvent * event )
 {
    qDebug() << "MW Key Pressed" << event->text();
+   char key = event->text().at(0).toAscii();
+   theEmulator.keyDown(theKeyMap[key]);
+
 }
 
 void MainWindow::keyReleaseEvent ( QKeyEvent * event )
 {
    qDebug() << "MW Key Released" << event->text();
+   char key = event->text().at(0).toAscii();
+   theEmulator.keyUp(theKeyMap[key]);
 }
 
 void MainWindow::loadRom()
 {
-   qDebug() << "Load Rom";
    QFileDialog dlg(this, "Choose ROM");
    QStringList loadFilters;
    loadFilters << "Chip-8 ROM (*.rom *.ROM)";
@@ -59,11 +100,14 @@ void MainWindow::loadRom()
    dlg.setFileMode(QFileDialog::ExistingFile);
    dlg.setModal(true);
 
-
    dlg.exec();
 
    if (dlg.selectedFiles().empty())
       return;
+
+   qDebug() << "Loading ROM" << dlg.selectedFiles().first();
+
+   theEmulator.clearRomData();
 
    unsigned char instruction;
 
@@ -75,7 +119,6 @@ void MainWindow::loadRom()
 
       if (feof(romFile))
       {
-
          break;
       }
 
@@ -84,7 +127,18 @@ void MainWindow::loadRom()
 
    }
 
+   theEmulator.resetEmulator();
 
+   if (ui->actionStart_on_Load->isChecked())
+   {
+      // Start emulator
+      qDebug() << "Starting emulator on load";
+      runEmulator();
+   }
+   else
+   {
+      qDebug() << "Emulator paused on load, run via CPU Viewer";
+   }
 }
 
 void MainWindow::aboutApplication()
@@ -95,4 +149,37 @@ void MainWindow::aboutApplication()
 void MainWindow::aboutQt()
 {
    QMessageBox::aboutQt(this, "About Qt");
+}
+
+void MainWindow::pauseEmulator()
+{
+   qDebug() << "Pause Emulator";
+   theEmulator.stopEmulator();
+   updateCpuViewer();
+}
+
+void MainWindow::stepEmulator()
+{
+   theEmulator.executeInstruction();
+   updateCpuViewer();
+}
+
+void MainWindow::runEmulator()
+{
+   qDebug() << "Run Emulator!";
+   theEmulator.start();
+}
+
+void MainWindow::resetEmulator()
+{
+   theEmulator.resetEmulator();
+}
+
+void MainWindow::updateCpuViewer()
+{
+   for(unsigned char i = 0; i < 16; i++)
+      theCpuDialog.setRegister(i, theEmulator.getRegister(i));
+
+   theCpuDialog.setInstructionPointer(theEmulator.getIP());
+   theCpuDialog.setIndexRegister(theEmulator.getIndexRegister());
 }

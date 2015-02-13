@@ -18,14 +18,16 @@ SOURCES += chip8emu.cpp\
     Emulator.cpp \
     InstDecoder.cpp \
     QSleeper.cpp \
-    CpuViewer.cpp
+    CpuViewer.cpp \
+    EmulationScreenWidget.cpp
 
 HEADERS  += MainWindow.h \
     EmulationScreen.h \
     Emulator.h \
     InstDecoder.h \
     QSleeper.h \
-    CpuViewer.h
+    CpuViewer.h \
+    EmulationScreenWidget.h
 
 FORMS    += MainWindow.ui \
     CpuViewer.ui

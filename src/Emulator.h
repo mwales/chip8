@@ -2,15 +2,21 @@
 #define EMULATOR_H
 
 #include "InstDecoder.h"
+#include "EmulationScreen.h"
 #include <QVector>
 #include <QSet>
 #include <QStack>
 #include <QMutex>
+#include <QThread>
+#include <QSemaphore>
+#include <QDateTime>
 
-class Emulator : public InstDecoder
+class Emulator : public InstDecoder, public QThread
 {
 public:
    Emulator();
+
+   void clearRomData();
 
    void loadRomData(unsigned char byte);
 
@@ -22,6 +28,18 @@ public:
 
    void keyUp(unsigned char key);
 
+   void setEmulationScreen(EmulationScreen* screen);
+
+   unsigned char getRegister(unsigned char reg);
+
+   unsigned int getIP();
+
+   unsigned int getIndexRegister();
+
+   void stopEmulator();
+
+   QStack<unsigned int> getStack();
+
 protected:
 
    QVector<unsigned char> theCpuRegisters;
@@ -30,11 +48,23 @@ protected:
 
    QVector<unsigned char> theMemory;
 
+   QVector<unsigned char> theRomData;
+
    QSet<unsigned char> theKeysDown;
 
    QMutex theKeysLock;
 
    unsigned int theIndexRegister;
+
+   EmulationScreen* theScreen;
+
+   bool theStopFlag;
+
+   QDateTime theDelayTimerExpiration;
+
+   QDateTime theSoundTimerExpiration;
+
+   void run();
 
    void loadFonts();
 
