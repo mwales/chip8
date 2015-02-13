@@ -71,7 +71,7 @@ This will interpret all bytes as opcodes, which shows stuff like the following:
 
 #### Recursive disassemble (way better)
 
-	./chip8da -l ~/working/chip8/cots/roms/c/hidden.rom
+	./chip8da -r ~/working/chip8/cots/roms/c/hidden.rom
 
 Those same sections of code now disassemble as follows:
 
