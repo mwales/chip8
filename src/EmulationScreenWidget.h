@@ -2,6 +2,7 @@
 #define EMULATIONSCREENWIDGET_H
 
 #include <QWidget>
+#include <QTimer>
 #include "EmulationScreen.h"
 
 class EmulationScreenWidget :  public QWidget, public EmulationScreen
@@ -11,12 +12,14 @@ class EmulationScreenWidget :  public QWidget, public EmulationScreen
 public:
    EmulationScreenWidget(QWidget *parent = 0);
 
-   bool drawSprite(unsigned int x, unsigned int y, vector<unsigned char> spriteData);
+private slots:
 
-   void clearScreen();
+   void forceRepaint();
 
 protected:
    void paintEvent ( QPaintEvent * event );
+
+   QTimer theRepaintTimer;
 };
 
 #endif // EMULATIONSCREENWIDGET_H

@@ -19,13 +19,13 @@ public:
    explicit MainWindow(QWidget *parent = 0);
    ~MainWindow();
 
-
-
 protected:
 
    void keyPressEvent ( QKeyEvent * event );
 
    void keyReleaseEvent ( QKeyEvent * event );
+
+   void closeEvent(QCloseEvent * event);
 
 protected slots:
 

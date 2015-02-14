@@ -44,7 +44,7 @@ bool EmulationScreen::drawSprite(unsigned int x, unsigned int y, vector<unsigned
          }
          else
          {
-            thePixels[row][col] = (mask & spriteData[rowsProcessed]);
+            thePixels[row][col] = thePixels[row][col] || (mask & spriteData[rowsProcessed]);
          }
 
 

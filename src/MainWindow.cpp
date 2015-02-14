@@ -89,6 +89,13 @@ void MainWindow::keyReleaseEvent ( QKeyEvent * event )
    theEmulator.keyUp(theKeyMap[key]);
 }
 
+void MainWindow::closeEvent(QCloseEvent * event)
+{
+   Q_UNUSED(event)
+
+   pauseEmulator();
+}
+
 void MainWindow::loadRom()
 {
    QFileDialog dlg(this, "Choose ROM");
@@ -182,4 +189,6 @@ void MainWindow::updateCpuViewer()
 
    theCpuDialog.setInstructionPointer(theEmulator.getIP());
    theCpuDialog.setIndexRegister(theEmulator.getIndexRegister());
+   theCpuDialog.setStack(theEmulator.getStack());
+   //theCpuDialog.setDelayTimer(theEmulator.get);
 }

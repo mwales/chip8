@@ -5,19 +5,11 @@
 EmulationScreenWidget::EmulationScreenWidget(QWidget *parent):
    QWidget(parent)
 {
+   theRepaintTimer.setInterval(10); // 100 Hz
+   connect(&theRepaintTimer, SIGNAL(timeout()),
+           this, SLOT(forceRepaint()));
 
-}
-
-bool EmulationScreenWidget::drawSprite(unsigned int x, unsigned int y, vector<unsigned char> spriteData)
-{
-   EmulationScreen::drawSprite(x,y,spriteData);
-   repaint();
-}
-
-void EmulationScreenWidget::clearScreen()
-{
-   EmulationScreen::clearScreen();
-   repaint();
+   theRepaintTimer.start();
 }
 
 void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
@@ -28,8 +20,8 @@ void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
    int pixelWidth = width() / X_RES;
    int pixelHeight = height() / Y_RES;
 
-   int xOffset = 0; //width() % X_RES / 2;
-   int yOffset = 0; //height() % Y_RES / 2;
+   int xOffset = width() % X_RES / 2;
+   int yOffset = height() % Y_RES / 2;
 
 
    for(int y = 0; y < Y_RES; y++)
@@ -44,4 +36,9 @@ void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
    }
 
 
+}
+
+void EmulationScreenWidget::forceRepaint()
+{
+   repaint();
 }

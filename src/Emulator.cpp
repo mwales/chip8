@@ -59,6 +59,8 @@ void Emulator::resetEmulator()
    theKeysDown.clear();
    theCpuStack.clear();
 
+   theScreen->clearScreen();
+
    unsigned int loadAddr = theAddress;
    for(int i = 0; i < theRomData.size(); i++)
    {
@@ -131,15 +133,8 @@ QStack<unsigned int> Emulator::getStack()
 }
 
 
-
-
 void Emulator::insClearScreen()
 {
-//   for(unsigned int addr = SCREEN_MEMORY_ADDR; addr < SCREEN_MEMORY_ADDR + SCREEN_MEMORY_SIZE; addr++)
-//   {
-//      theMemory[addr] = 0;
-//   }
-
    theScreen->clearScreen();
 }
 
@@ -329,29 +324,6 @@ void Emulator::insWaitForKeyPress(unsigned reg)
    // Not sure what this thing would do if more than one key pressed at a time, so we will just return the first item
    // in the set unless I come up with a better idea
 
-//   bool waitingForKey = true;
-//   unsigned char keyPressed;
-//   while(waitingForKey)
-//   {
-//      theKeysLock.lock();
-
-//      waitingForKey = theKeysDown.isEmpty();
-
-//      if (!waitingForKey)
-//      {
-//         // Get a pressed key
-//         keyPressed = theKeysDown.toList().first();
-//      }
-
-//      theKeysLock.unlock();
-
-//      QSleeper::sleepMilliSecs(1);
-//   }
-
-//   theCpuRegisters[reg] = keyPressed;
-
-
-
    unsigned char keyPressed;
 
    theKeysLock.lock();
@@ -371,7 +343,6 @@ void Emulator::insWaitForKeyPress(unsigned reg)
       // Rather than blocking, just move the IP back 2 and repeat this instruction over and over
       theAddress -= 2;
    }
-
 
 }
 
@@ -450,9 +421,14 @@ void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
       spriteData.push_back(theMemory[theIndexRegister+i]);
    }
 
-   theScreen->drawSprite(theCpuRegisters[xReg] % 64,
-                         theCpuRegisters[yReg] % 32,
-                         spriteData);
+   bool collision = theScreen->drawSprite(theCpuRegisters[xReg] % 64,
+                                          theCpuRegisters[yReg] % 32,
+                                          spriteData);
+
+   if (collision)
+      theCpuRegisters[0xf] = 1;
+   else
+      theCpuRegisters[0xf] = 0;
 }
 
 void Emulator::insBad(unsigned opCode)
