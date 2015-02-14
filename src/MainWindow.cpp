@@ -77,7 +77,7 @@ MainWindow::~MainWindow()
 void MainWindow::keyPressEvent ( QKeyEvent * event )
 {
    qDebug() << "MW Key Pressed" << event->text();
-   char key = event->text().at(0).toAscii();
+   char key = event->text().at(0).toLatin1();
    theEmulator.keyDown(theKeyMap[key]);
 
 }
@@ -85,7 +85,7 @@ void MainWindow::keyPressEvent ( QKeyEvent * event )
 void MainWindow::keyReleaseEvent ( QKeyEvent * event )
 {
    qDebug() << "MW Key Released" << event->text();
-   char key = event->text().at(0).toAscii();
+   char key = event->text().at(0).toLatin1();
    theEmulator.keyUp(theKeyMap[key]);
 }
 

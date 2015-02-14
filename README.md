@@ -12,11 +12,34 @@ C and C\+\+ for the underlying code.  I usually Qt-ify my personal projects beca
 
 Qt for graphical interface
 
+# Build instructions
+
+I have only tested on Ubuntu 14.04 64-bit.
+
+## Disassembler
+
+This should be normal portable C++.  I have a compilation script in the src directory to compile it.
+
+    ./c.sh
+
+## Emulator
+
+The emulator should only depend on Qt.  I'm using 4.8.6 that I'm 75% sure is in the Ubuntu package repo.  I wanted to do more as standard C++, but I needed a threading library, so Qt picks up that responsibility rather than pthread or C++ 11 support.
+
+I also briefly tested with Qt 5.3.
+
+To compile the Qt application, cd with your terminal to src directory.
+
+    mkdir build
+    cd build
+    qmake ../chip8emu.pro
+    make
+
 # Disassembler
 
 I want to take a few approaches with this.
 
-I want to start making a disassembler that just ingests the whole ROM and interprets every 2 bytes as op-code information.  I realize this is wrong because I've noticed some of the ROMs have binary data in the ROM that isn't executable code.  
+I want to start making a disassembler that just ingests the whole ROM and interprets every 2 bytes as op-code information.  I realize this is wrong because I've noticed some of the ROMs have binary data in the ROM that isn't executable code.
 
 If code will ever jump to an odd-address (addr % 2 == 1), it will produce garbage during linear disassemble.
 
