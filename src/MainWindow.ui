@@ -53,7 +53,6 @@
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoadRom">
    <property name="text">
     <string>Load ROM...</string>
@@ -76,6 +75,9 @@
   </action>
   <action name="actionStart_on_Load">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">

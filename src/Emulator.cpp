@@ -562,7 +562,7 @@ void Emulator::run()
    {
       executeInstruction();
 
-      msleep(10);
+      usleep(1000);
    }
 }
 
