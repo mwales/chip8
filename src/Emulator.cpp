@@ -132,6 +132,25 @@ QStack<unsigned int> Emulator::getStack()
    return theCpuStack;
 }
 
+unsigned char Emulator::getDelayTimer()
+{
+   QDateTime curTime = QDateTime::currentDateTime();
+
+   if (curTime > theDelayTimerExpiration)
+   {
+      return 0;
+   }
+   else
+   {
+      int numMilliSecs = curTime.msecsTo(theDelayTimerExpiration);
+      return numMilliSecs / MS_PER_TIMER_COUNT;
+   }
+}
+
+unsigned char Emulator::getSoundTimer()
+{
+
+}
 
 void Emulator::insClearScreen()
 {
@@ -348,18 +367,7 @@ void Emulator::insWaitForKeyPress(unsigned reg)
 
 void Emulator::insSetRegToDelayTimer(unsigned reg)
 {
-   QDateTime curTime = QDateTime::currentDateTime();
-
-   if (curTime > theDelayTimerExpiration)
-   {
-      theCpuRegisters[reg] = 0;
-   }
-   else
-   {
-      int numMilliSecs = curTime.msecsTo(theDelayTimerExpiration);
-      theCpuRegisters[reg] = numMilliSecs / MS_PER_TIMER_COUNT;
-   }
-
+   theCpuRegisters[reg] = getDelayTimer();
 }
 
 void Emulator::insSetDelayTimer(unsigned reg)
@@ -563,7 +571,24 @@ void Emulator::run()
       executeInstruction();
 
       usleep(500);
+
+      if (theBreakpoints.contains(theAddress))
+      {
+         qDebug() << "Breakpoint at" << QString::number(theAddress, 16) << "hit";
+         theStopFlag = true;
+      }
    }
+}
+
+void Emulator::setBreakpoint(unsigned int addr)
+{
+   qDebug() << "Breakpoint added at" << QString::number(addr);
+   theBreakpoints.insert(addr);
+}
+
+void Emulator::clearBreakpoints()
+{
+   theBreakpoints.clear();
 }
 
 void Emulator::stopEmulator()

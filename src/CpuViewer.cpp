@@ -69,11 +69,6 @@ void CpuViewer::setDelayTimer(unsigned int val)
    ui->lineEdit_dt->setText(numToHex(val, 1));
 }
 
-void CpuViewer::setSoundTimer(unsigned int val)
-{
-   ui->lineEdit_st->setText(numToHex(val, 1));
-}
-
 void CpuViewer::setIndexRegister(unsigned int val)
 {
    ui->lineEdit_index->setText(numToHex(val, 2));

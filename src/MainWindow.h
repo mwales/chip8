@@ -43,6 +43,10 @@ protected slots:
 
    void resetEmulator();
 
+   void addBreakpoint();
+
+   void clearBreakpoints();
+
 private:
 
    void updateCpuViewer();

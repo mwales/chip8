@@ -31,8 +31,6 @@ public:
 
    void setDelayTimer(unsigned int val);
 
-   void setSoundTimer(unsigned int val);
-
    void setIndexRegister(unsigned int val);
 
    QString numToHex(int number, int numBytes);

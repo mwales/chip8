@@ -36,9 +36,15 @@ public:
 
    unsigned int getIndexRegister();
 
+   unsigned char getDelayTimer();
+
    void stopEmulator();
 
    QStack<unsigned int> getStack();
+
+   void setBreakpoint(unsigned int addr);
+
+   void clearBreakpoints();
 
 protected:
 
@@ -51,6 +57,8 @@ protected:
    QVector<unsigned char> theRomData;
 
    QSet<unsigned char> theKeysDown;
+
+   QSet<unsigned int> theBreakpoints;
 
    QMutex theKeysLock;
 

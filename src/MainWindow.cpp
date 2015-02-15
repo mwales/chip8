@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFile>
+#include <QInputDialog>
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
@@ -35,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
            this, SLOT(resetEmulator()));
    connect(&theCpuDialog, SIGNAL(stepPressed()),
            this, SLOT(stepEmulator()));
+   connect(ui->actionSet_Breakpoint, SIGNAL(triggered()),
+           this, SLOT(addBreakpoint()));
+   connect(ui->actionClear_Breakpoints, SIGNAL(triggered()),
+           this, SLOT(clearBreakpoints()));
 
 
    ui->screenWidget->setPixel(1, 1, true);
@@ -190,5 +195,32 @@ void MainWindow::updateCpuViewer()
    theCpuDialog.setInstructionPointer(theEmulator.getIP());
    theCpuDialog.setIndexRegister(theEmulator.getIndexRegister());
    theCpuDialog.setStack(theEmulator.getStack());
-   //theCpuDialog.setDelayTimer(theEmulator.get);
+   theCpuDialog.setDelayTimer(theEmulator.getDelayTimer());
+}
+
+void MainWindow::addBreakpoint()
+{
+   if (theEmulator.isRunning())
+   {
+      QMessageBox::warning(this, "Processor Running", "Stop the emulator before configuring breakpoints");
+      return;
+   }
+
+   QString breakpoint = QInputDialog::getText(this, "Enter breakpoint address", "0x");
+   bool success;
+   unsigned int addr = breakpoint.toUInt(&success, 16);
+
+   if (success)
+   {
+      theEmulator.setBreakpoint(addr);
+   }
+   else
+   {
+      QMessageBox::warning(this, "Invalid Address", "Invalid address specified");
+   }
+}
+
+void MainWindow::clearBreakpoints()
+{
+   theEmulator.clearBreakpoints();
 }
