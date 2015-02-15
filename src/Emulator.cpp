@@ -147,11 +147,6 @@ unsigned char Emulator::getDelayTimer()
    }
 }
 
-unsigned char Emulator::getSoundTimer()
-{
-
-}
-
 void Emulator::insClearScreen()
 {
    theScreen->clearScreen();
@@ -343,8 +338,6 @@ void Emulator::insWaitForKeyPress(unsigned reg)
    // Not sure what this thing would do if more than one key pressed at a time, so we will just return the first item
    // in the set unless I come up with a better idea
 
-   unsigned char keyPressed;
-
    theKeysLock.lock();
 
    bool waitingForKey = theKeysDown.isEmpty();
@@ -407,7 +400,7 @@ void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
 
 void Emulator::insStoreRegsToIndexMemory(unsigned reg)
 {
-   for(int i = 0; i <= reg; i++)
+   for(unsigned int i = 0; i <= reg; i++)
    {
       theMemory[theIndexRegister + i] = theCpuRegisters[i];
    }
@@ -415,7 +408,7 @@ void Emulator::insStoreRegsToIndexMemory(unsigned reg)
 
 void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
 {
-   for(int i = 0; i <= reg; i++)
+   for(unsigned int i = 0; i <= reg; i++)
    {
       theCpuRegisters[i] = theMemory[theIndexRegister + i];
    }
@@ -424,7 +417,7 @@ void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
 void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 {
    vector<unsigned char> spriteData;
-   for(int i = 0; i < height; i++)
+   for(unsigned int i = 0; i < height; i++)
    {
       spriteData.push_back(theMemory[theIndexRegister+i]);
    }

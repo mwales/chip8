@@ -14,6 +14,8 @@ EmulationScreenWidget::EmulationScreenWidget(QWidget *parent):
 
 void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
 {
+   Q_UNUSED(event)
+
    QPainter p(this);
    p.setPen(Qt::blue);
 

@@ -41,9 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->actionClear_Breakpoints, SIGNAL(triggered()),
            this, SLOT(clearBreakpoints()));
 
-
-   ui->screenWidget->setPixel(1, 1, true);
-
    theEmulator.setEmulationScreen(ui->screenWidget);
 
    // Not sure how standardized Chip-8 emulators are, but I'm using JChip8 as reference so I'll map my keys
@@ -81,17 +78,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::keyPressEvent ( QKeyEvent * event )
 {
-   qDebug() << "MW Key Pressed" << event->text();
-   char key = event->text().at(0).toLatin1();
-   theEmulator.keyDown(theKeyMap[key]);
+   if (event->text().size() > 0)
+   {
+      char key = event->text().at(0).toLatin1();
+
+      if (theKeyMap.contains(key))
+         theEmulator.keyDown(theKeyMap[key]);
+   }
 
 }
 
 void MainWindow::keyReleaseEvent ( QKeyEvent * event )
 {
-   qDebug() << "MW Key Released" << event->text();
-   char key = event->text().at(0).toLatin1();
-   theEmulator.keyUp(theKeyMap[key]);
+   if (event->text().size() > 0)
+   {
+      char key = event->text().at(0).toLatin1();
+      theEmulator.keyUp(theKeyMap[key]);
+   }
 }
 
 void MainWindow::closeEvent(QCloseEvent * event)
@@ -118,6 +121,9 @@ void MainWindow::loadRom()
       return;
 
    qDebug() << "Loading ROM" << dlg.selectedFiles().first();
+
+   theEmulator.stopEmulator();
+   theEmulator.resetEmulator();
 
    theEmulator.clearRomData();
 
