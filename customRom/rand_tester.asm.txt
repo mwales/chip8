@@ -1,0 +1,30 @@
+6b00  v11 = 0
+
+6a60  v10 = 60
+fa15  timer = v10
+
+waitLoop:
+fa07  v10 = timer
+4a00  if v10 == 0
+2250  call inc_and_print
+1206  jump to waitLoop
+
+inc_and_print:
+a500  index = 500
+cbff  v11 = rand(0xff)
+fb33  bcd_decode v11
+6c01  xreg = 0 v12
+6d01  yreg = 0 v13
+6e07  xreg2 = 6 v14
+690d  xreg3 = 12 v9
+f265  loadmem 3
+00e0  clearscreen
+f029  loadfont v0
+dcd5  drawsprite xreg, yreg, 5
+f129  loadfont v1
+ded5  drawsprite xreg2, yreg, 5
+f229  loadfont v2 xreg3, yreg, 5
+d9d5  drawsprite xreg3, yreg, 5
+6a60  v10 = 60
+fa15  timer = v10
+00ee  ret
