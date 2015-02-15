@@ -365,7 +365,7 @@ void Emulator::insSetRegToDelayTimer(unsigned reg)
 void Emulator::insSetDelayTimer(unsigned reg)
 {
    theDelayTimerExpiration = QDateTime::currentDateTime();
-   theDelayTimerExpiration.addMSecs(theCpuRegisters[reg] * MS_PER_TIMER_COUNT);
+   theDelayTimerExpiration = theDelayTimerExpiration.addMSecs(theCpuRegisters[reg] * MS_PER_TIMER_COUNT);
 }
 
 void Emulator::insSetSoundTimer(unsigned reg)
@@ -391,10 +391,10 @@ void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
    theMemory[theIndexRegister] = val / 100;
    val = val % 100;
 
-   theMemory[theIndexRegister] = val / 10;
+   theMemory[theIndexRegister+1] = val / 10;
    val = val % 10;
 
-   theMemory[theIndexRegister] = val;
+   theMemory[theIndexRegister+2] = val;
 }
 
 void Emulator::insStoreRegsToIndexMemory(unsigned reg)
@@ -562,7 +562,7 @@ void Emulator::run()
    {
       executeInstruction();
 
-      usleep(1000);
+      usleep(500);
    }
 }
 
