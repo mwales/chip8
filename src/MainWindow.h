@@ -52,6 +52,8 @@ protected slots:
 
    void enableSound();
 
+   void editKeyMap();
+
 private:
 
    void updateCpuViewer();

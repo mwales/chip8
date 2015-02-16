@@ -22,7 +22,8 @@ SOURCES += chip8emu.cpp\
     QSleeper.cpp \
     CpuViewer.cpp \
     EmulationScreenWidget.cpp \
-    audio_player.cpp
+    audio_player.cpp \
+    KeyMapEditor.cpp
 
 HEADERS  += MainWindow.h \
     EmulationScreen.h \
@@ -31,9 +32,11 @@ HEADERS  += MainWindow.h \
     QSleeper.h \
     CpuViewer.h \
     EmulationScreenWidget.h \
-    audio_player.h
+    audio_player.h \
+    KeyMapEditor.h
 
 FORMS    += MainWindow.ui \
-    CpuViewer.ui
+    CpuViewer.ui \
+    KeyMapEditor.ui
 
 RESOURCES +=

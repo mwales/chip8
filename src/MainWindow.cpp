@@ -6,6 +6,7 @@
 
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include "KeyMapEditor.h"
 
 const int X_RES = 64;
 const int Y_RES = 32;
@@ -40,6 +41,8 @@ MainWindow::MainWindow(QWidget *parent) :
            this, SLOT(addBreakpoint()));
    connect(ui->actionClear_Breakpoints, SIGNAL(triggered()),
            this, SLOT(clearBreakpoints()));
+   connect(ui->actionEdit_Keymap, SIGNAL(triggered()),
+           this, SLOT(editKeyMap()));
 
    connect(ui->actionEnable_Sound, SIGNAL(triggered()),
            this, SLOT(enableSound()));
@@ -286,4 +289,32 @@ void MainWindow::updateIps(int ips)
 void MainWindow::enableSound()
 {
    theEmulator.enableSound(ui->actionEnable_Sound->isChecked());
+}
+
+void MainWindow::editKeyMap()
+{
+   KeyMapEditor kme(theKeyMap, this);
+   if(kme.exec())
+   {
+      // user clicked ok, update key map
+
+      // validate all the user selections before making changes
+      for(int i = 0; i <= 0xf; i++)
+      {
+         if (kme.getKeyBinding(i) == 0)
+         {
+            qDebug() << "New key map rejected due to error";
+            return;
+         }
+      }
+
+      theKeyMap.clear();
+
+      for(int i = 0; i <= 0xf; i++)
+      {
+         theKeyMap.insert(kme.getKeyBinding(i), i);
+      }
+   }
+
+   qDebug() << "Key Map updated";
 }
