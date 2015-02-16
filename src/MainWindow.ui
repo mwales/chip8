@@ -48,9 +48,18 @@
      <string>Options</string>
     </property>
     <addaction name="actionCPU_Viewer"/>
+    <addaction name="actionEdit_Keymap"/>
+    <addaction name="separator"/>
     <addaction name="actionSet_Breakpoint"/>
     <addaction name="actionClear_Breakpoints"/>
-    <addaction name="actionEdit_Keymap"/>
+    <addaction name="separator"/>
+    <addaction name="action100_IPS"/>
+    <addaction name="action200_IPS"/>
+    <addaction name="action500_IPS"/>
+    <addaction name="action1_KIPS"/>
+    <addaction name="action2_KIPS"/>
+    <addaction name="separator"/>
+    <addaction name="actionEnable_Sound"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuWindow"/>
@@ -87,6 +96,11 @@
     <string>Start on Load</string>
    </property>
   </action>
+  <action name="actionEdit_Keymap">
+   <property name="text">
+    <string>Edit Keymap...</string>
+   </property>
+  </action>
   <action name="actionSet_Breakpoint">
    <property name="text">
     <string>Set Breakpoint...</string>
@@ -97,9 +111,55 @@
     <string>Clear Breakpoints</string>
    </property>
   </action>
-  <action name="actionEdit_Keymap">
+  <action name="action100_IPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Edit Keymap...</string>
+    <string>100 IPS</string>
+   </property>
+  </action>
+  <action name="action200_IPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>200 IPS</string>
+   </property>
+  </action>
+  <action name="action500_IPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>500 IPS</string>
+   </property>
+  </action>
+  <action name="action1_KIPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1 KIPS</string>
+   </property>
+  </action>
+  <action name="action2_KIPS">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2 KIPS</string>
+   </property>
+  </action>
+  <action name="actionEnable_Sound">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Sound</string>
    </property>
   </action>
  </widget>

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 #include <QMap>
+#include <QSignalMapper>
 #include "CpuViewer.h"
 #include "Emulator.h"
 
@@ -47,6 +48,10 @@ protected slots:
 
    void clearBreakpoints();
 
+   void updateIps(int ips);
+
+   void enableSound();
+
 private:
 
    void updateCpuViewer();
@@ -58,6 +63,10 @@ private:
    Ui::MainWindow *ui;
 
    QMap<char, unsigned char> theKeyMap;
+
+   QMap<int, QAction* > theSpeedSelectors;
+
+   QSignalMapper theIpsMapper;
 };
 
 #endif // MAINWINDOW_H

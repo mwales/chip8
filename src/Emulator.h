@@ -46,6 +46,10 @@ public:
 
    void clearBreakpoints();
 
+   void setInstPerSecond(int ips);
+
+   void enableSound(bool enable);
+
 protected:
 
    QVector<unsigned char> theCpuRegisters;
@@ -70,7 +74,9 @@ protected:
 
    QDateTime theDelayTimerExpiration;
 
-   QDateTime theSoundTimerExpiration;
+   int theInstructionPeriodMicroSecs;
+
+   bool theSoundEnabled;
 
    void run();
 

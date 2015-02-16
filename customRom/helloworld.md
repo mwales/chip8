@@ -1,17 +1,19 @@
-6278: V2 = 120
+6278  V2 = 120
 
-6300: V3 = 0 (x coordinate)
+a500  I = 500
 
-6400: V4 = 0 (y coordinate)
+6301  V3 = 1 (x coordinate)
 
-f10a: V1 = key press
+6401  V4 = 1 (y coordinate)
 
-00e0: clear screen
+f10a  V1 = key press
 
-f218: sound timer in 2 seconds
+00e0  clear screen
 
-f129: set I to sprite for V1
+f218  sound timer in 2 seconds
 
-D345: draw sprite at (8,8), 5 pixels high
+f129  set I to sprite for V1
 
-1200: go back to the start
+D345  draw sprite at (1,1), 5 pixels high
+
+1200  go back to the start

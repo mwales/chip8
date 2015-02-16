@@ -11,6 +11,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = chip8emu
 TEMPLATE = app
 
+LIBS += -lao
+
 
 SOURCES += chip8emu.cpp\
         MainWindow.cpp \
@@ -19,7 +21,8 @@ SOURCES += chip8emu.cpp\
     InstDecoder.cpp \
     QSleeper.cpp \
     CpuViewer.cpp \
-    EmulationScreenWidget.cpp
+    EmulationScreenWidget.cpp \
+    audio_player.cpp
 
 HEADERS  += MainWindow.h \
     EmulationScreen.h \
@@ -27,7 +30,10 @@ HEADERS  += MainWindow.h \
     InstDecoder.h \
     QSleeper.h \
     CpuViewer.h \
-    EmulationScreenWidget.h
+    EmulationScreenWidget.h \
+    audio_player.h
 
 FORMS    += MainWindow.ui \
     CpuViewer.ui
+
+RESOURCES +=

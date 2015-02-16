@@ -1,6 +1,8 @@
 #include <QtDebug>
+#include <QThreadPool>
 #include "Emulator.h"
 #include "QSleeper.h"
+#include "audio_player.h"
 
 #define NUM_REGISTERS      16
 #define MAX_MEMORY         0x1000
@@ -13,7 +15,9 @@
 
 const int MS_PER_TIMER_COUNT = 1000 / 60;
 
-Emulator::Emulator()
+Emulator::Emulator():
+   theInstructionPeriodMicroSecs(500),
+   theSoundEnabled(true)
 {
    for (int i = 0; i < NUM_REGISTERS; i++)
    {
@@ -26,7 +30,6 @@ Emulator::Emulator()
    }
 
    loadFonts();
-
 }
 
 void Emulator::clearRomData()
@@ -69,7 +72,6 @@ void Emulator::resetEmulator()
 
    loadFonts();
 
-   theSoundTimerExpiration = QDateTime::currentDateTime();
    theDelayTimerExpiration = QDateTime::currentDateTime();
 }
 
@@ -371,8 +373,20 @@ void Emulator::insSetDelayTimer(unsigned reg)
 
 void Emulator::insSetSoundTimer(unsigned reg)
 {
-   theSoundTimerExpiration = QDateTime::currentDateTime();
-   theSoundTimerExpiration.addMSecs(theCpuRegisters[reg] * MS_PER_TIMER_COUNT);
+   // I should be extending the sound duration if the sound timer set while it is already running, but I'm ignoring
+   // that feature for now.  Sound is annoying enough as is.
+
+   if (theSoundEnabled)
+   {
+      AnnoyingSound* player = new AnnoyingSound();
+      player->setDuration(theCpuRegisters[reg] / 60.0);
+
+      QThreadPool::globalInstance()->start(player);
+   }
+   else
+   {
+      qDebug() << "Sound Muted";
+   }
 }
 
 void Emulator::insAddRegToIndexReg(unsigned reg)
@@ -387,6 +401,13 @@ void Emulator::insSetIndexToCharInReg(unsigned reg)
 
 void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
 {
+   if (theIndexRegister + 2 >= MAX_MEMORY)
+   {
+      qDebug() << "Index register out of valid memory range for the BCD instruction.  Index = "
+               << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      return;
+   }
+
    unsigned char val = theCpuRegisters[reg];
 
    theMemory[theIndexRegister] = val / 100;
@@ -400,6 +421,13 @@ void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
 
 void Emulator::insStoreRegsToIndexMemory(unsigned reg)
 {
+   if (theIndexRegister + reg >= MAX_MEMORY)
+   {
+      qDebug() << "Index register out of valid memory range for the store regs instruction.  Index = "
+               << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      return;
+   }
+
    for(unsigned int i = 0; i <= reg; i++)
    {
       theMemory[theIndexRegister + i] = theCpuRegisters[i];
@@ -408,6 +436,13 @@ void Emulator::insStoreRegsToIndexMemory(unsigned reg)
 
 void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
 {
+   if (theIndexRegister + reg >= MAX_MEMORY)
+   {
+      qDebug() << "Index register out of valid memory range for the load regs instruction.  Index = "
+               << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      return;
+   }
+
    for(unsigned int i = 0; i <= reg; i++)
    {
       theCpuRegisters[i] = theMemory[theIndexRegister + i];
@@ -563,7 +598,7 @@ void Emulator::run()
    {
       executeInstruction();
 
-      usleep(500);
+      usleep(theInstructionPeriodMicroSecs);
 
       if (theBreakpoints.contains(theAddress))
       {
@@ -591,4 +626,14 @@ void Emulator::stopEmulator()
       theStopFlag = true;
       wait();
    }
+}
+
+void Emulator::setInstPerSecond(int ips)
+{
+   theInstructionPeriodMicroSecs = 1000000 / ips;
+}
+
+void Emulator::enableSound(bool enable)
+{
+   theSoundEnabled = enable;
 }

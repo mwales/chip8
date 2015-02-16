@@ -480,12 +480,10 @@
     </layout>
    </item>
   </layout>
-  <zorder>horizontalSpacer_2</zorder>
   <zorder>pauseButton</zorder>
   <zorder>goButton</zorder>
   <zorder>stepButton</zorder>
-  <zorder>horizontalSpacer_2</zorder>
- </widget>
+  </widget>
  <resources/>
  <connections>
   <connection>

@@ -41,6 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
    connect(ui->actionClear_Breakpoints, SIGNAL(triggered()),
            this, SLOT(clearBreakpoints()));
 
+   connect(ui->actionEnable_Sound, SIGNAL(triggered()),
+           this, SLOT(enableSound()));
+   enableSound();
+
    theEmulator.setEmulationScreen(ui->screenWidget);
 
    // Not sure how standardized Chip-8 emulators are, but I'm using JChip8 as reference so I'll map my keys
@@ -69,6 +73,34 @@ MainWindow::MainWindow(QWidget *parent) :
    theKeyMap.insert('r', 0xd);
    theKeyMap.insert('f', 0xe);
    theKeyMap.insert('v', 0xf);
+
+   // Setup speed selection maps, signal maps, and connections
+   theSpeedSelectors.insert(100, ui->action100_IPS);
+   theSpeedSelectors.insert(200, ui->action200_IPS);
+   theSpeedSelectors.insert(500, ui->action500_IPS);
+   theSpeedSelectors.insert(1000, ui->action1_KIPS);
+   theSpeedSelectors.insert(2000, ui->action2_KIPS);
+   updateIps(500);
+
+   theIpsMapper.setMapping(ui->action100_IPS, 100);
+   theIpsMapper.setMapping(ui->action200_IPS, 200);
+   theIpsMapper.setMapping(ui->action500_IPS, 500);
+   theIpsMapper.setMapping(ui->action1_KIPS, 1000);
+   theIpsMapper.setMapping(ui->action2_KIPS, 2000);
+
+   connect(ui->action100_IPS, SIGNAL(triggered()),
+           &theIpsMapper, SLOT(map()));
+   connect(ui->action200_IPS, SIGNAL(triggered()),
+           &theIpsMapper, SLOT(map()));
+   connect(ui->action500_IPS, SIGNAL(triggered()),
+           &theIpsMapper, SLOT(map()));
+   connect(ui->action1_KIPS, SIGNAL(triggered()),
+           &theIpsMapper, SLOT(map()));
+   connect(ui->action2_KIPS, SIGNAL(triggered()),
+           &theIpsMapper, SLOT(map()));
+   connect(&theIpsMapper, SIGNAL(mapped(int)),
+           this, SLOT(updateIps(int)));
+
 }
 
 MainWindow::~MainWindow()
@@ -229,4 +261,29 @@ void MainWindow::addBreakpoint()
 void MainWindow::clearBreakpoints()
 {
    theEmulator.clearBreakpoints();
+}
+
+void MainWindow::updateIps(int ips)
+{
+   if (theSpeedSelectors.contains(ips))
+   {
+      foreach(int possibleSpeed, theSpeedSelectors.keys())
+      {
+         if (ips == possibleSpeed)
+         {
+            theSpeedSelectors[possibleSpeed]->setChecked(true);
+         }
+         else
+         {
+            theSpeedSelectors[possibleSpeed]->setChecked(false);
+         }
+      }
+
+      theEmulator.setInstPerSecond(ips);
+   }
+}
+
+void MainWindow::enableSound()
+{
+   theEmulator.enableSound(ui->actionEnable_Sound->isChecked());
 }
