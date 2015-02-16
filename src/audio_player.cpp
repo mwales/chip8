@@ -97,7 +97,7 @@ void AnnoyingSound::setDuration(double durationSecs)
    theDuration = durationSecs;
 }
 
-void AnnoyingSound::AnnoyingSound::run()
+void AnnoyingSound::run()
 {
    if (theSingleSoundLock.tryLock() == false)
    {
