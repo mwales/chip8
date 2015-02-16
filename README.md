@@ -24,9 +24,11 @@ This should be normal portable C++.  I have a compilation script in the src dire
 
 ## Emulator
 
-The emulator should only depend on Qt.  I'm using 4.8.6 that I'm 75% sure is in the Ubuntu package repo.  I wanted to do more as standard C++, but I needed a threading library, so Qt picks up that responsibility rather than pthread or C++ 11 support.
+The emulator should only depend on Qt.  I'm using 4.8.6 that I'm 75% sure is in the Ubuntu package repo.  I wanted to do more as standard C\+\+, but I needed a threading library, so Qt picks up that responsibility rather than pthread or C\+\+ 11 support.
 
 I also briefly tested with Qt 5.3.
+
+Libraries required are libao (audio) and Qt.  Not sure exactly what packages Qt is in, I suspect it is either libqt4-dev or qt5-defaults.
 
 To compile the Qt application, cd with your terminal to src directory.
 
@@ -34,6 +36,24 @@ To compile the Qt application, cd with your terminal to src directory.
     cd build
     qmake ../chip8emu.pro
     make
+
+## Screenshots
+
+### Lunar Lander
+
+![Lunar Lander](screens/lunar_lander.png)
+
+### Space Invaders
+
+![Space Invaders](screens/space_invaders.png)
+
+![Space Invaders](screens/space_invaders2.png)
+
+### Cpu Viewer / ROM Debugging Options
+
+Can any number of breakpoints in the emulator to halt the emulator on.  CPU Viewer windows allows the user to inspect all the registers and the call stack.  User can then single step, reset, or continue running the ROM.
+
+![CPU Viewer](screens/cpu_viewer.png)
 
 # Disassembler
 
@@ -208,7 +228,6 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 * Sound Timer
 
 
-
 # Reference Sites:
 
 * Chip 8 instruction set (including superchip instructions):  http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
@@ -216,4 +235,4 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 * http://www.emulator101.com/
 
 * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
-* 
+
