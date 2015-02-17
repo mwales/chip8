@@ -37,6 +37,13 @@ To compile the Qt application, cd with your terminal to src directory.
     qmake ../chip8emu.pro
     make
 
+Alternatively, if one would like to compile without the sound / libao dependency, execute the following:
+
+    mkdir build
+    cd build
+    qmake CONFIG+=NO_SOUND ../chip8emu.pro
+    make
+
 ## Screenshots
 
 ### Lunar Lander
