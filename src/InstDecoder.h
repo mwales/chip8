@@ -1,9 +1,16 @@
 
-
-
 #ifndef INSTDECODER_H
 #define INSTDECODER_H
 
+/**
+ * Each instruction is decoded based on instruction type (number of parameters if any
+ * provided by the opcode.
+ *
+ * The second tier of decode function break down the opcodes into pieces and then calls the
+ * appropriate pure-virtual function that will implement that opcode.
+ *
+ * There will be 2 children of this class, one to disassemble ROMS, and one to emulate Chip-8
+ */
 class InstDecoder
 {
 
@@ -55,7 +62,6 @@ protected:
    /**
     * @section The exact instruction decoders will be left up to the children implementations
     */
-
    virtual void insClearScreen() = 0;
 
    virtual void insReturnFromSub() = 0;

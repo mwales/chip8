@@ -112,7 +112,7 @@ unsigned char Emulator::getRegister(unsigned char reg)
 {
    if (reg >= 16)
    {
-      qDebug() << "Illegal register value requested in " << __PRETTY_FUNCTION__;
+      qDebug() << "Illegal register value requested in " << __FUNCTION__;
       return 0;
    }
 

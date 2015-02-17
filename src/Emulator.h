@@ -11,39 +11,40 @@
 #include <QSemaphore>
 #include <QDateTime>
 
+/**
+ * Chip-8 Emulator class
+ *
+ * Running this thread runs the emulator at whatever instructions per second we are configured
+ * to run at.
+ */
 class Emulator : public InstDecoder, public QThread
 {
 public:
    Emulator();
 
-   void clearRomData();
 
+   void clearRomData();
    void loadRomData(unsigned char byte);
 
-   void resetEmulator();
-
-   void executeInstruction();
-
+   // Connect to GUI keypress up/down events
    void keyDown(unsigned char key);
-
    void keyUp(unsigned char key);
 
    void setEmulationScreen(EmulationScreen* screen);
 
+   // Accessors for the Chip-8 interpreter / CPU internal state
    unsigned char getRegister(unsigned char reg);
-
    unsigned int getIP();
-
    unsigned int getIndexRegister();
-
    unsigned char getDelayTimer();
-
-   void stopEmulator();
-
    QStack<unsigned int> getStack();
 
-   void setBreakpoint(unsigned int addr);
+   // Controls to play, pause, reset the emulator
+   void stopEmulator();
+   void resetEmulator();
+   void executeInstruction();
 
+   void setBreakpoint(unsigned int addr);
    void clearBreakpoints();
 
    void setInstPerSecond(int ips);
@@ -52,35 +53,52 @@ public:
 
 protected:
 
+   // Internal state variables for the interpreter
    QVector<unsigned char> theCpuRegisters;
-
    QStack<unsigned int> theCpuStack;
-
    QVector<unsigned char> theMemory;
+   unsigned int theIndexRegister;
+   QDateTime theDelayTimerExpiration;
 
+   /**
+    * ROM data stored seperately incase a program rewrites the code segment while it is running.
+    * Otherwise, reset would have been implemented by setting IP to 0x200 again.
+    */
    QVector<unsigned char> theRomData;
 
-   QSet<unsigned char> theKeysDown;
-
+   /**
+    * Stop the emulator when it is running and hits one of these addresses with the IP
+    */
    QSet<unsigned int> theBreakpoints;
 
+   // Key press event lock and list
+   QSet<unsigned char> theKeysDown;
    QMutex theKeysLock;
 
-   unsigned int theIndexRegister;
 
    EmulationScreen* theScreen;
 
    bool theStopFlag;
 
-   QDateTime theDelayTimerExpiration;
 
+
+   /**
+    * How fast the emulator should process instructions
+    */
    int theInstructionPeriodMicroSecs;
 
    bool theSoundEnabled;
 
    void run();
 
+   /**
+    * Loads the Chip-8 font sprites into memory below 0x200
+    */
    void loadFonts();
+
+
+
+   // Chip-8 instruction handlers
 
    void insClearScreen();
 

@@ -6,6 +6,10 @@
 
 int playAnnoyingTone(double durationSecs);
 
+/**
+ * The QSound class provided by Qt is obsolete I guess, and this seemed like the easiest
+ * cross-platform library to create sound with
+ */
 class AnnoyingSound: public QRunnable
 {
 public:

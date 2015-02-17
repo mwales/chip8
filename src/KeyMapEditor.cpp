@@ -57,7 +57,7 @@ char KeyMapEditor::getKeyBinding(unsigned char chip8Key)
 {
    if (!theControlMap.contains(chip8Key))
    {
-      qDebug() << "Invalid parameter" << __PRETTY_FUNCTION__ << "chip8Key" << chip8Key;
+      qDebug() << "Invalid parameter" << __FUNCTION__ << "chip8Key" << chip8Key;
       return 0;
    }
 

@@ -9,6 +9,10 @@ namespace Ui {
 class KeyMapEditor;
 }
 
+/**
+ * Dialog used to change keyboard key bindings (tank game has inverted controls that need to be
+ * reconfigured).
+ */
 class KeyMapEditor : public QDialog
 {
    Q_OBJECT

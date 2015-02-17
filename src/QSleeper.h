@@ -3,6 +3,10 @@
 
 #include <QThread>
 
+/**
+ * @brief Wrapper to allow access to the QThread protected sleep functions.  These functions were
+ * later made public in Qt5.
+ */
 class QSleeper : public QThread
 {
    Q_OBJECT

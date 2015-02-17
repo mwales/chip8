@@ -11,6 +11,9 @@ namespace Ui {
 class CpuViewer;
 }
 
+/**
+ * Displays internal CPU / interpreter state information when the emulator is paused
+ */
 class CpuViewer : public QDialog
 {
    Q_OBJECT
@@ -49,6 +52,9 @@ signals:
 private:
    Ui::CpuViewer *ui;
 
+   /**
+    * Allows me to access all the register QLineEdits via an array / index
+    */
    QVector<QLineEdit*> theRegisters;
 };
 
