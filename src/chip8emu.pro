@@ -11,7 +11,12 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = chip8emu
 TEMPLATE = app
 
-LIBS += -lao
+CONFIG(NO_SOUND) {
+   DEFINES+=NO_SOUND
+}
+else {
+   LIBS += -lao
+}
 
 
 SOURCES += chip8emu.cpp\

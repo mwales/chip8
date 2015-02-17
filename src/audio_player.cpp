@@ -28,8 +28,12 @@
 #include <QtDebug>
 #include <stdio.h>
 #include <string.h>
-#include <ao/ao.h>
 #include <math.h>
+
+#ifndef NO_SOUND
+#include <ao/ao.h>
+#endif
+
 #include "audio_player.h"
 
 #define BUF_SIZE 4096
@@ -38,6 +42,7 @@ QMutex AnnoyingSound::theSingleSoundLock;
 
 int playAnnoyingTone(double numSecs)
 {
+#ifndef NO_SOUND
    ao_device *device;
    ao_sample_format format;
    int default_driver;
@@ -88,7 +93,9 @@ int playAnnoyingTone(double numSecs)
    ao_shutdown();
 
    delete[] buffer;
-
+#else
+   Q_UNUSED(numSecs)
+#endif
   return (0);
 }
 
