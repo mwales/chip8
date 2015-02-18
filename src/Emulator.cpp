@@ -112,7 +112,7 @@ unsigned char Emulator::getRegister(unsigned char reg)
 {
    if (reg >= 16)
    {
-      qDebug() << "Illegal register value requested in " << __FUNCTION__;
+      qFatal("Illegal register value requested in Emulator::getRegister()");
       return 0;
    }
 
@@ -156,22 +156,50 @@ void Emulator::insClearScreen()
 
 void Emulator::insReturnFromSub()
 {
+   if (theCpuStack.isEmpty())
+   {
+      qDebug() << "Return statement with no return addresses on the stack";
+      theStopFlag = true;
+      return;
+   }
+
    theAddress = theCpuStack.pop();
 }
 
 void Emulator::insJump(unsigned addr)
 {
+   if (addr > 0x1000)
+   {
+      qDebug() << "Jump to address" << QString::number(addr, 16) << "is out of bounds";
+      theStopFlag = true;
+      return;
+   }
+
    theAddress = addr - 0x2;
 }
 
 void Emulator::insCall(unsigned addr)
 {
+   if (addr > 0x1000)
+   {
+      qDebug() << "Call to address" << QString::number(addr, 16) << "is out of bounds";
+      theStopFlag = true;
+      return;
+   }
+
    theCpuStack.push(theAddress);
    theAddress = addr - 0x2;
 }
 
 void Emulator::insSetIndexReg(unsigned addr)
 {
+   if (addr > 0x1000)
+   {
+      qDebug() << "Set Index Register address to" << QString::number(addr, 16) << "is out of bounds";
+      theStopFlag = true;
+      return;
+   }
+
    theIndexRegister = addr;
 }
 
@@ -183,6 +211,8 @@ void Emulator::insJumpWithOffset(unsigned addr)
    {
       qDebug() << "jump with offset trying to jump out of memory";
       qDebug() << "  addr=" << addr << " offset=" << theCpuRegisters[0];
+      theStopFlag = true;
+      return;
    }
 }
 
@@ -405,6 +435,7 @@ void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
    {
       qDebug() << "Index register out of valid memory range for the BCD instruction.  Index = "
                << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      theStopFlag = true;
       return;
    }
 
@@ -425,6 +456,7 @@ void Emulator::insStoreRegsToIndexMemory(unsigned reg)
    {
       qDebug() << "Index register out of valid memory range for the store regs instruction.  Index = "
                << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      theStopFlag = true;
       return;
    }
 
@@ -440,6 +472,7 @@ void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
    {
       qDebug() << "Index register out of valid memory range for the load regs instruction.  Index = "
                << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      theStopFlag = true;
       return;
    }
 
@@ -451,6 +484,14 @@ void Emulator::insLoadRegsFromIndexMemory(unsigned reg)
 
 void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 {
+   if (theIndexRegister >= MAX_MEMORY)
+   {
+      qDebug() << "Index register out of valid memory range for the draw sprite instruction.  Index = "
+               << QString::number(theIndexRegister, 16) << "and address is" << QString::number(theAddress, 16);
+      theStopFlag = true;
+      return;
+   }
+
    vector<unsigned char> spriteData;
    for(unsigned int i = 0; i < height; i++)
    {
@@ -470,6 +511,7 @@ void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 void Emulator::insBad(unsigned opCode)
 {
    qDebug() << "Bad opcode" << QString::number(opCode, 16);
+   theStopFlag = true;
 }
 
 void Emulator::loadFonts()

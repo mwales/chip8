@@ -225,7 +225,9 @@ void MainWindow::runEmulator()
 
 void MainWindow::resetEmulator()
 {
+   theEmulator.stopEmulator();
    theEmulator.resetEmulator();
+   updateCpuViewer();
 }
 
 void MainWindow::updateCpuViewer()
