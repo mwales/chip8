@@ -12,6 +12,7 @@
 ; VC = X-coord of pipe (0 to 58)
 ; VB = Y-coord of top of bottom pipe (2-16)
 ; VA = Score
+; V9 = Wing flap state.  1 = wing up, 0 = wing down
 
 
 
@@ -27,6 +28,7 @@ Main:
    LD    VA, 0
    LD	   VD, 6
    LD	   VE, 6
+   LD    V9, 0
    CALL  Reset_Pipe
 
 Main_Loop:
@@ -36,7 +38,7 @@ Main_Loop:
    CALL  Draw_Pipe
 
    LD VF, 0
-   CALL	Draw_Ball
+   CALL	Draw_Bird
 
    ; If there was a collision after draing the ball, floppy bird dead
    SE VF, 0
@@ -103,6 +105,27 @@ Draw_Ball:
 	LD	V1, 12
 	DRW	V1, VD, 8
 	RET
+
+Draw_Bird:
+   ; Flap wings if not falling
+   SE VE, 0
+   ADD V9, 1
+
+   ; If V9 state, goes to 2, wrap back to zero
+   SNE V9, 2
+   LD V9, 0
+
+   SNE VE, 0
+   LD V9, 1
+
+   LD V2, 8
+   LD I, Wing_Up_Bird
+   SNE V9, 0
+   ADD I, V2
+
+   LD V1, 12
+   DRW V1, VD, 8
+   RET
 
 
 ; Top pipe is 8 pixels high
@@ -266,13 +289,27 @@ Ball:
 	DW	#81C3
 	DW	#663C
 
+Wing_Up_Bird:
+   DW #3FE9
+   DW #8B8F
+   DW #F82C
+   DW #2420
+
+Wing_Down_Bird:
+   DW #0F09
+   DW #0BFF
+   DW #869C
+   DW #F420
+
 Bottom_Pipe:
 	DW	#7E42
+   DW #7E42
    DW #4242
+
 Top_Pipe:
 	DW	#4242
    DW #4242
-   DW #4242
+   DW #427E
    DW #427E
 
 Title_Screen:
