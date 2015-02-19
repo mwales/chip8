@@ -44,6 +44,14 @@ Alternatively, if one would like to compile without the sound / libao dependency
     qmake CONFIG+=NO_SOUND ../chip8emu.pro
     make
 
+## My Custom ROM - Floppy Bird
+
+Inspired by the mobile hit game Flappy Bird, I created a Chip-8 version.  It was written in assembly, and then compiled into the ROM format using the CHIPPER assembler.
+
+![Floppy Bird](screens/floppybird_title.png)
+
+![Lunar Lander](screens/floppybird_ingame.png)
+
 ## Screenshots
 
 ### Lunar Lander
@@ -243,3 +251,4 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 
 * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
+- David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
