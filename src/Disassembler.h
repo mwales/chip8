@@ -89,6 +89,25 @@ protected:
    void insLoadRegsFromIndexMemory(unsigned reg);
 
    void insDrawSprite(unsigned xReg, unsigned yReg, unsigned height);
+
+   // Super Chip-8 Instructions
+   void insScrollDown(unsigned char numLines);
+
+   void insScrollLeft();
+
+   void insScrollRight();
+
+   void insQuitEmulator();
+
+   void insEnterLowResMode();
+
+   void insEnterHighResMode();
+
+   void insSaveHp48Flags(unsigned char reg);
+
+   void insLoadHp48Flags(unsigned char reg);
+
+   void insSetIndexToHiResCharInReg(unsigned char reg);
 };
 
 #endif // DISASSEMBLER_H

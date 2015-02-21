@@ -59,6 +59,8 @@ protected:
    QVector<unsigned char> theMemory;
    unsigned int theIndexRegister;
    QDateTime theDelayTimerExpiration;
+   QVector<unsigned char> theHp48Flags;
+   bool theHighResMode;
 
    /**
     * ROM data stored seperately incase a program rewrites the code segment while it is running.
@@ -80,7 +82,7 @@ protected:
 
    bool theStopFlag;
 
-
+   unsigned int theHiResFontsAddr;
 
    /**
     * How fast the emulator should process instructions
@@ -167,6 +169,25 @@ protected:
    void insLoadRegsFromIndexMemory(unsigned reg);
 
    void insDrawSprite(unsigned xReg, unsigned yReg, unsigned height);
+
+   // Super chip-8 instructions
+   void insScrollDown(unsigned char numLines);
+
+   void insScrollLeft();
+
+   void insScrollRight();
+
+   void insQuitEmulator();
+
+   void insEnterLowResMode();
+
+   void insEnterHighResMode();
+
+   void insSaveHp48Flags(unsigned char reg);
+
+   void insLoadHp48Flags(unsigned char reg);
+
+   void insSetIndexToHiResCharInReg(unsigned char reg);
 
    void insBad(unsigned opCode);
 };

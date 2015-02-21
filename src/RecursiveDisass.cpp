@@ -92,6 +92,12 @@ void RecursiveDisass::insReturnFromSub()
    Disassembler::insReturnFromSub();
 }
 
+void RecursiveDisass::insQuitEmulator()
+{
+   theEndOfBlockDetected = true;
+   Disassembler::insQuitEmulator();
+}
+
 void RecursiveDisass::insJumpWithOffset(unsigned addr)
 {
    theEndOfBlockDetected = true;

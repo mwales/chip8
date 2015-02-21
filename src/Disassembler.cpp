@@ -304,7 +304,7 @@ void Disassembler::insLoadRegsFromIndexMemory(unsigned reg)
 void Disassembler::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 {
    ostringstream ss;
-   ss << "draw_spirte xreg=v" << xReg << ", yreg=v" << yReg << ", h=" << height;
+   ss << "draw_sprite xreg=v" << xReg << ", yreg=v" << yReg << ", h=" << height;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -324,6 +324,79 @@ void Disassembler::insBad(unsigned opCode)
 {
    ostringstream ss;
    ss << "BAD OPCODE 0x" << setfill('0') << setw(4) << hex << opCode;
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+// Super Chip-8 Instructions
+void Disassembler::insScrollDown(unsigned char numLines)
+{
+   ostringstream ss;
+   ss << "scroll_down " << numLines;
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insScrollLeft()
+{
+   ostringstream ss;
+   ss << "scroll_left";
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insScrollRight()
+{
+   ostringstream ss;
+   ss << "scroll_right";
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insQuitEmulator()
+{
+   ostringstream ss;
+   ss << "stop";
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insEnterLowResMode()
+{
+   ostringstream ss;
+   ss << "low_res";
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insEnterHighResMode()
+{
+   ostringstream ss;
+   ss << "high_res";
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insSaveHp48Flags(unsigned char reg)
+{
+   ostringstream ss;
+   ss << "save_hp_flags" << hex << reg;
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insLoadHp48Flags(unsigned char reg)
+{
+   ostringstream ss;
+   ss << "load_hp_flags" << hex << reg;
+
+   theDisassembly[theAddress] = ss.str();
+}
+
+void Disassembler::insSetIndexToHiResCharInReg(unsigned char reg)
+{
+   ostringstream ss;
+   ss << "mov I, (hires_font_base + v" << hex << (unsigned int) reg << ")";
 
    theDisassembly[theAddress] = ss.str();
 }

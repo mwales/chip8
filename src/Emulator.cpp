@@ -10,26 +10,30 @@
 #define SCREEN_MEMORY_ADDR 0x0f00
 #define SCREEN_MEMORY_SIZE 0x0100
 
-#define FONT_HEIGHT        5
-#define FONT_ADDR          0x0100
+#define FONT_HEIGHT_STD        5
+#define FONT_HEIGHT_HIRES      10
+
 
 const int MS_PER_TIMER_COUNT = 1000 / 60;
 
 Emulator::Emulator():
+   theHighResMode(false),
    theInstructionPeriodMicroSecs(500),
    theSoundEnabled(true)
+
 {
    for (int i = 0; i < NUM_REGISTERS; i++)
    {
       theCpuRegisters.push_back(0);
    }
 
-   for(int i = 0; i < MAX_MEMORY; i++)
+   loadFonts();
+   for(int i = theMemory.size(); i < MAX_MEMORY; i++)
    {
       theMemory.push_back(0);
    }
 
-   loadFonts();
+
 }
 
 void Emulator::clearRomData()
@@ -48,9 +52,11 @@ void Emulator::resetEmulator()
    theAddress = 0x0200;
 
    // Clear everything
-   for(int i = 0; i < theMemory.size(); i++)
+   theMemory.clear();
+   loadFonts();
+   for(int i = theMemory.size(); i < MAX_MEMORY; i++)
    {
-      theMemory[i] = 0;
+      theMemory.append(0);
    }
 
    for(int i = 0; i < theCpuRegisters.size(); i++)
@@ -63,6 +69,8 @@ void Emulator::resetEmulator()
    theCpuStack.clear();
 
    theScreen->clearScreen();
+   theScreen->hiResModeEnable(false);
+   theHighResMode = false;
 
    unsigned int loadAddr = theAddress;
    for(int i = 0; i < theRomData.size(); i++)
@@ -70,7 +78,7 @@ void Emulator::resetEmulator()
       theMemory[loadAddr++] = theRomData[i];
    }
 
-   loadFonts();
+   //loadFonts();
 
    theDelayTimerExpiration = QDateTime::currentDateTime();
 }
@@ -426,7 +434,8 @@ void Emulator::insAddRegToIndexReg(unsigned reg)
 
 void Emulator::insSetIndexToCharInReg(unsigned reg)
 {
-   theIndexRegister = FONT_ADDR + theCpuRegisters[reg] * FONT_HEIGHT;
+   // Low-res fonts start at address 0
+   theIndexRegister = theCpuRegisters[reg] * FONT_HEIGHT_STD;
 }
 
 void Emulator::insSetIndexMemoryToRegBcd(unsigned reg)
@@ -492,20 +501,111 @@ void Emulator::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
       return;
    }
 
-   vector<unsigned char> spriteData;
-   for(unsigned int i = 0; i < height; i++)
+   QVector<unsigned char> spriteData;
+   bool collision;
+
+   if (height > 0)
    {
-      spriteData.push_back(theMemory[theIndexRegister+i]);
+      for(unsigned int i = 0; i < height; i++)
+      {
+         spriteData.push_back(theMemory[theIndexRegister+i]);
+      }
+
+      collision = theScreen->drawSprite(theCpuRegisters[xReg] % (theHighResMode ? 128 : 64),
+                                        theCpuRegisters[yReg] % (theHighResMode ? 64 : 32),
+                                        spriteData);
+
+   }
+   else
+   {
+      // height = 0, special super chip-8 form of instruction
+      if (theHighResMode)
+      {
+         // Draw super sprite!
+         for(unsigned int i = 0; i < 32; i++)
+         {
+            spriteData.push_back(theMemory[theIndexRegister+i]);
+         }
+
+         collision = theScreen->drawSuperSprite(theCpuRegisters[xReg] % 128,
+                                                theCpuRegisters[yReg] % 64,
+                                                spriteData);
+      }
+      else
+      {
+         // Draw 16 row sprite!
+         for(unsigned int i = 0; i < 16; i++)
+         {
+            spriteData.push_back(theMemory[theIndexRegister+i]);
+         }
+
+         collision = theScreen->drawSprite(theCpuRegisters[xReg] % 64,
+                                           theCpuRegisters[yReg] % 32,
+                                           spriteData);
+      }
    }
 
-   bool collision = theScreen->drawSprite(theCpuRegisters[xReg] % 64,
-                                          theCpuRegisters[yReg] % 32,
-                                          spriteData);
+
+
+
 
    if (collision)
       theCpuRegisters[0xf] = 1;
    else
       theCpuRegisters[0xf] = 0;
+}
+
+void Emulator::insScrollDown(unsigned char numLines)
+{
+   theScreen->shiftDown(numLines);
+}
+
+void Emulator::insScrollLeft()
+{
+   theScreen->shiftLeft();
+}
+
+void Emulator::insScrollRight()
+{
+   theScreen->shiftRight();
+}
+
+void Emulator::insQuitEmulator()
+{
+   qDebug() << "Quit Emulator Instruction";
+
+   theStopFlag = true;
+
+   // To not allow someone to step over the flag, reset the address
+   theAddress -= 2;
+}
+
+void Emulator::insEnterLowResMode()
+{
+   theScreen->hiResModeEnable(false);
+   theHighResMode = false;
+}
+
+void Emulator::insEnterHighResMode()
+{
+   theScreen->hiResModeEnable(true);
+   theHighResMode = true;
+}
+
+void Emulator::insSaveHp48Flags(unsigned char reg)
+{
+   qDebug() << __FUNCTION__;
+}
+
+void Emulator::insLoadHp48Flags(unsigned char reg)
+{
+   qDebug() << __FUNCTION__;
+}
+
+void Emulator::insSetIndexToHiResCharInReg(unsigned char reg)
+{
+   // High-res fonts start at address the
+   theIndexRegister = theHiResFontsAddr + theCpuRegisters[reg] * FONT_HEIGHT_HIRES;
 }
 
 void Emulator::insBad(unsigned opCode)
@@ -516,120 +616,60 @@ void Emulator::insBad(unsigned opCode)
 
 void Emulator::loadFonts()
 {
-   // Font codes found at:  http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#dispcoords
-   unsigned int addr = FONT_ADDR;
+   // Low res Font codes found at:  http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#dispcoords
 
-   // 0
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
+   theMemory << 0xf0 << 0x90 << 0x90 << 0x90 << 0xf0; // 0
+   theMemory << 0x20 << 0x60 << 0x20 << 0x20 << 0x70;
+   theMemory << 0xf0 << 0x10 << 0xf0 << 0x80 << 0xf0;
+   theMemory << 0xf0 << 0x10 << 0xf0 << 0x10 << 0xf0;
+   theMemory << 0x90 << 0x90 << 0xf0 << 0x10 << 0x10;
+   theMemory << 0xf0 << 0x80 << 0xf0 << 0x10 << 0xf0; // 5
+   theMemory << 0xf0 << 0x80 << 0xf0 << 0x90 << 0xf0;
+   theMemory << 0xf0 << 0x10 << 0x20 << 0x40 << 0x40;
+   theMemory << 0xf0 << 0x90 << 0xf0 << 0x90 << 0xf0;
+   theMemory << 0xf0 << 0x90 << 0xf0 << 0x10 << 0xf0;
+   theMemory << 0xf0 << 0x90 << 0xf0 << 0x90 << 0x90; // A
+   theMemory << 0xe0 << 0x90 << 0xe0 << 0x90 << 0xe0;
+   theMemory << 0xf0 << 0x80 << 0x80 << 0x80 << 0xf0;
+   theMemory << 0xe0 << 0x90 << 0x90 << 0x90 << 0xe0;
+   theMemory << 0xf0 << 0x80 << 0xf0 << 0x80 << 0xf0;
+   theMemory << 0xf0 << 0x80 << 0xf0 << 0x80 << 0x80; // F
 
-   // 1
-   theMemory[addr++] = 0x20;
-   theMemory[addr++] = 0x60;
-   theMemory[addr++] = 0x20;
-   theMemory[addr++] = 0x20;
-   theMemory[addr++] = 0x70;
+   theHiResFontsAddr = theMemory.size();
 
-   // 2
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
+   theMemory << 0x3c << 0x66 << 0xc3 << 0x81 << 0x81
+             << 0x81 << 0x81 << 0xc3 << 0x66 << 0x3c; // 0
+   theMemory << 0x10 << 0x30 << 0x10 << 0x10 << 0x10
+             << 0x10 << 0x10 << 0x10 << 0x10 << 0x7e;
+   theMemory << 0x3c << 0x66 << 0x81 << 0x01 << 0x03
+             << 0x06 << 0x38 << 0xc0 << 0x80 << 0xff;
+   theMemory << 0x7e << 0x83 << 0x81 << 0x01 << 0x06
+             << 0x06 << 0x01 << 0x81 << 0x83 << 0x7e;
+   theMemory << 0x04 << 0x0c << 0x14 << 0x24 << 0x44
+             << 0xff << 0x04 << 0x04 << 0x04 << 0x04;
+   theMemory << 0xff << 0x80 << 0x80 << 0x80 << 0xfe
+             << 0xc2 << 0x01 << 0x01 << 0x83 << 0x7e; // 5
+   theMemory << 0x3e << 0x41 << 0x81 << 0x80 << 0xbc
+             << 0xc2 << 0x81 << 0x81 << 0x81 << 0x7e;
+   theMemory << 0xff << 0x01 << 0x03 << 0x06 << 0x08
+             << 0x10 << 0x20 << 0x60 << 0x40 << 0x80;
+   theMemory << 0x18 << 0x24 << 0x42 << 0x42 << 0x3c
+             << 0x42 << 0x81 << 0x81 << 0x81 << 0x7e;
+   theMemory << 0x7e << 0x81 << 0x81 << 0x81 << 0x43
+             << 0x3d << 0x01 << 0x81 << 0x86 << 0x7c;
+   theMemory << 0x18 << 0x66 << 0x42 << 0x81 << 0x81
+             << 0xff << 0x81 << 0x81 << 0x81 << 0x81; // A
+   theMemory << 0xfc << 0x82 << 0x82 << 0x82 << 0xfc
+             << 0x82 << 0x81 << 0x81 << 0x81 << 0xfe;
+   theMemory << 0x3c << 0x66 << 0xc3 << 0x81 << 0x80
+             << 0x80 << 0x81 << 0xc3 << 0x66 << 0x3c;
+   theMemory << 0xf8 << 0x84 << 0x82 << 0x81 << 0x81
+             << 0x81 << 0x81 << 0x82 << 0x84 << 0xf8;
+   theMemory << 0xff << 0x80 << 0x80 << 0x80 << 0x80
+             << 0xfc << 0x80 << 0x80 << 0x80 << 0xff;
+   theMemory << 0xff << 0x80 << 0x80 << 0x80 << 0x80
+             << 0xfc << 0x80 << 0x80 << 0x80 << 0x80; // F
 
-   // 3
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0xf0;
-
-   // 4
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0x10;
-
-   // 5
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0xf0;
-
-   // 6
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-
-   // 7
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0x20;
-   theMemory[addr++] = 0x40;
-   theMemory[addr++] = 0x40;
-
-   // 8
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-
-   // 9
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x10;
-   theMemory[addr++] = 0xf0;
-
-   // a
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-
-   // b
-   theMemory[addr++] = 0xe0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xe0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xe0;
-
-   // c
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-
-   // d
-   theMemory[addr++] = 0xe0;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0x90;
-   theMemory[addr++] = 0xe0;
-
-   // e
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-
-   // f
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0xf0;
-   theMemory[addr++] = 0x80;
-   theMemory[addr++] = 0x80;
 }
 
 void Emulator::run()

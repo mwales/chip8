@@ -130,6 +130,25 @@ protected:
 
    virtual void insDrawSprite(unsigned xReg, unsigned yReg, unsigned height) = 0;
 
+   // Super Chip-8 Instructions
+   virtual void insScrollDown(unsigned char numLines) = 0;
+
+   virtual void insScrollLeft() = 0;
+
+   virtual void insScrollRight() = 0;
+
+   virtual void insQuitEmulator() = 0;
+
+   virtual void insEnterLowResMode() = 0;
+
+   virtual void insEnterHighResMode() = 0;
+
+   virtual void insSaveHp48Flags(unsigned char reg) = 0;
+
+   virtual void insLoadHp48Flags(unsigned char reg) = 0;
+
+   virtual void insSetIndexToHiResCharInReg(unsigned char reg) = 0;
+
    virtual void insBad(unsigned opCode) = 0;
 
 };

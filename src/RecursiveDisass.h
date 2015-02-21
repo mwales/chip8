@@ -35,6 +35,7 @@ protected:
    void insReturnFromSub();
    void insJumpWithOffset(unsigned addr); // Destination is the start of a block, but we can't easily determine destination
    void insBad(unsigned opCode);
+   void insQuitEmulator();
 
    // Instructions that will create start of blocks
    void insCall(unsigned addr);

@@ -19,16 +19,19 @@ void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
    QPainter p(this);
    p.setPen(Qt::blue);
 
-   int pixelWidth = width() / X_RES;
-   int pixelHeight = height() / Y_RES;
+   int xRes = theXRes;
+   int yRes = theYRes;
 
-   int xOffset = width() % X_RES / 2;
-   int yOffset = height() % Y_RES / 2;
+   int pixelWidth = width() / xRes;
+   int pixelHeight = height() / yRes;
 
+   int xOffset = width() % xRes / 2;
+   int yOffset = height() % yRes / 2;
 
-   for(int y = 0; y < Y_RES; y++)
+   thePixelsLock.lockForRead();
+   for(int y = 0; y < yRes; y++)
    {
-      for(int x = 0; x < X_RES; x++)
+      for(int x = 0; x < xRes; x++)
       {
          if (!thePixels[y][x])
          {
@@ -36,7 +39,7 @@ void EmulationScreenWidget::paintEvent ( QPaintEvent * event )
          }
       }
    }
-
+   thePixelsLock.unlock();
 
 }
 

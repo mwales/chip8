@@ -8,7 +8,7 @@
 #define MASK_CONSTANTS            0x00ff
 #define MASK_SRC_REG              0x00f0
 
-#define PREFIX_NO_PARAMS          0x0000
+#define PREFIX_SYS_INST           0x0000
 #define PREFIX_JUMP               0x1000
 #define PREFIX_CALL               0x2000
 #define PREFIX_SKIP_NEXT_EQ_CONST 0x3000
@@ -27,7 +27,14 @@
 
 #define OPCODE_CLEAR_SCREEN       0x00e0
 #define OPCODE_RETURN             0x00ee
+#define OPCODE_SCROLL_LEFT        0x00fc
+#define OPCODE_SCROLL_RIGHT       0x00fb
+#define OPCODE_EXIT_EMULATOR      0x00fd
+#define OPCODE_LOW_RES_MODE       0x00fe
+#define OPCODE_HIGH_RES_MODE      0x00ff
 
+#define OPCODE_SCROLL_DOWN        0x00c0
+#define SCROLL_DOWN_MASK          0x00f0
 
 InstDecoder::InstDecoder()
 {
@@ -86,7 +93,7 @@ bool InstDecoder::decodeInstruction(unsigned char* opCode)
          retCode = decodeSpriteIns(word);
          break;
 
-      case PREFIX_NO_PARAMS:
+      case PREFIX_SYS_INST:
          // Op-code only operations, no parameters, etc
          retCode = decodeParamlessIns(word);
          break;
@@ -131,6 +138,15 @@ bool InstDecoder::decodeAddressBasedIns(unsigned int opCode)
 
 bool InstDecoder::decodeParamlessIns(unsigned int opCode)
 {
+   // Special case instruction scroll down
+   if ( (opCode & SCROLL_DOWN_MASK) == OPCODE_SCROLL_DOWN)
+   {
+      const unsigned int SCROLL_DOWN_NUM_LINES_MASK = 0x000f;
+      unsigned char numLines = opCode & SCROLL_DOWN_NUM_LINES_MASK;
+      insScrollDown(numLines);
+      return true;
+   }
+
    switch(opCode)
    {
       case OPCODE_CLEAR_SCREEN:
@@ -139,6 +155,26 @@ bool InstDecoder::decodeParamlessIns(unsigned int opCode)
 
       case OPCODE_RETURN:
          insReturnFromSub();
+         return true;
+
+      case OPCODE_SCROLL_LEFT:
+         insScrollLeft();
+         return true;
+
+      case OPCODE_SCROLL_RIGHT:
+         insScrollRight();
+         return true;
+
+      case OPCODE_EXIT_EMULATOR:
+         insQuitEmulator();
+         return true;
+
+      case OPCODE_LOW_RES_MODE:
+         insEnterLowResMode();
+         return true;
+
+      case OPCODE_HIGH_RES_MODE:
+         insEnterHighResMode();
          return true;
    }
 
@@ -273,6 +309,10 @@ bool InstDecoder::decodeOneRegisterIns(unsigned int opCode)
          insSetIndexToCharInReg(reg);
          return true;
 
+      case 0xf030:
+         insSetIndexToHiResCharInReg(reg);
+         return true;
+
       case 0xf033:
          insSetIndexMemoryToRegBcd(reg);
          return true;
@@ -283,6 +323,14 @@ bool InstDecoder::decodeOneRegisterIns(unsigned int opCode)
 
       case 0xf065:
          insLoadRegsFromIndexMemory(reg);
+         return true;
+
+      case 0xf075:
+         insSaveHp48Flags(reg);
+         return true;
+
+      case 0xf085:
+         insLoadHp48Flags(reg);
          return true;
 
    }
