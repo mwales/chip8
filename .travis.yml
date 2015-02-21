@@ -3,4 +3,4 @@ compiler:
   - gcc
   - clang
 # Change this to your needs
-script: ./src/c.sh 
+script: cd src && ./c.sh 
