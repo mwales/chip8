@@ -3,7 +3,7 @@
 #include "InstDecoder.h"
 #include "RecursiveDisass.h"
 
-void linearDisassemble(FILE* romFile)
+void linearDisassemble(FILE* romFile, bool hideAddress)
 {
    unsigned int address = 0x200;
 
@@ -11,6 +11,7 @@ void linearDisassemble(FILE* romFile)
    instruction[2] = 0; // null terminate string
 
    Disassembler da;
+   da.printAddresses(!hideAddress);
 
    while(true)
    {
@@ -18,7 +19,7 @@ void linearDisassemble(FILE* romFile)
 
       if (feof(romFile))
       {
-         printf("End of file\n");
+         printf("; End of file\n");
          break;
       }
 
@@ -45,13 +46,14 @@ void linearDisassemble(FILE* romFile)
    da.printDisassembly();
 }
 
-void recursiveDisassemble(FILE* romFile)
+void recursiveDisassemble(FILE* romFile, bool hideAddress)
 {
    unsigned int address = 0x200;
 
    unsigned char instruction;
 
    RecursiveDisass da;
+   da.printAddresses(!hideAddress);
 
    while(true)
    {
@@ -77,11 +79,14 @@ int main(int argc, char** argv)
 {
    if (argc < 3)
    {
-      printf("Usage:  disasschip8 -mode romfile\n");
+      printf("Usage:  disasschip8 <mode> <-h> romfile\n");
+      printf("  Modes:  -l is linear disassemble (disassembles everything as code)\n");
+      printf("          -r is recursive disassemble (disassemble only what it thinks is code)\n");
+      printf("  -h = hides address field, useful for generating code that can be reassembled\n");
       return -1;
    }
 
-   FILE* romFile = fopen(argv[2], "r");
+   FILE* romFile = fopen(argv[argc - 1], "r");
 
    if (romFile == NULL)
    {
@@ -89,15 +94,26 @@ int main(int argc, char** argv)
       return -1;
    }
 
+   bool hideAddress = false;
+   if (strcmp(argv[2], "-h") == 0)
+   {
+      hideAddress = true;
+   }
+
+   printf("; Setting used by the chipper assembler\n");
+   printf("option schip11\n");
+   printf("option binary\n");
+   printf("align off\n\n");
+
    if (strcmp(argv[1],"-r") == 0)
    {
-      printf("Recursive Disassembly\n");
-      recursiveDisassemble(romFile);
+      printf("; Recursive Disassembly\n");
+      recursiveDisassemble(romFile, hideAddress);
    }
    else
    {
-      printf("Linear Disassembly\n");
-      linearDisassemble(romFile);
+      printf("; Linear Disassembly\n");
+      linearDisassemble(romFile, hideAddress);
    }
 
    fclose(romFile);

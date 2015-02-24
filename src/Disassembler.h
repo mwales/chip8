@@ -16,9 +16,13 @@ public:
 
    virtual void printDisassembly();
 
+   void printAddresses(bool printAddr);
+
 protected:
 
    map <unsigned int, string> theDisassembly;
+
+   bool thePrintAddressOption;
 
    void insBad(unsigned opCode);
 

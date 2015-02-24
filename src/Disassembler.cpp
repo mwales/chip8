@@ -9,13 +9,19 @@
 
 using namespace std;
 
-Disassembler::Disassembler()
+Disassembler::Disassembler():
+   thePrintAddressOption(true)
 {
+}
+
+void Disassembler::printAddresses(bool printAddr)
+{
+   thePrintAddressOption = printAddr;
 }
 
 void Disassembler::insClearScreen()
 {
-  theDisassembly[theAddress] = "clear_screen";
+  theDisassembly[theAddress] = "cls";
 }
 
 void Disassembler::insReturnFromSub()
@@ -26,7 +32,7 @@ void Disassembler::insReturnFromSub()
 void Disassembler::insJump(unsigned addr)
 {
    ostringstream ss;
-   ss << "jmp 0x" << setfill('0') << setw(4) << hex << addr;
+   ss << "jp loc_" << setfill('0') << setw(4) << hex << addr;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -35,7 +41,7 @@ void Disassembler::insJump(unsigned addr)
 void Disassembler::insCall(unsigned addr)
 {
    ostringstream ss;
-   ss << "call 0x" << setfill('0') << setw(4) << hex << addr;
+   ss << "call loc_" << setfill('0') << setw(4) << hex << addr;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -44,7 +50,7 @@ void Disassembler::insCall(unsigned addr)
 void Disassembler::insSetIndexReg(unsigned addr)
 {
    ostringstream ss;
-   ss << "mov I, 0x" << setfill('0') << setw(4) << hex << addr;
+   ss << "ld I, #" << setfill('0') << setw(4) << hex << addr;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -53,7 +59,7 @@ void Disassembler::insSetIndexReg(unsigned addr)
 void Disassembler::insJumpWithOffset(unsigned addr)
 {
    ostringstream ss;
-   ss << "jmp 0x" << setfill('0') << setw(4) << hex << addr << " + v0";
+   ss << "jp v0, #" << setfill('0') << setw(4) << hex << addr;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -62,7 +68,7 @@ void Disassembler::insJumpWithOffset(unsigned addr)
 void Disassembler::insSkipNextIfRegEqConst(unsigned reg, unsigned val)
 {
    ostringstream ss;
-   ss << "skipnext_eq v" << hex << reg << ", 0x" << setfill('0') << setw(2) << hex << val;
+   ss << "se v" << hex << reg << ", #" << setfill('0') << setw(2) << hex << val;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -71,7 +77,7 @@ void Disassembler::insSkipNextIfRegEqConst(unsigned reg, unsigned val)
 void Disassembler::insSkipNextIfRegNotEqConst(unsigned reg, unsigned val)
 {
    ostringstream ss;
-   ss << "skipnext_ne v" << hex << reg << ", 0x" << setfill('0') << setw(2) << hex << val;
+   ss << "sne v" << hex << reg << ", #" << setfill('0') << setw(2) << hex << val;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -80,7 +86,7 @@ void Disassembler::insSkipNextIfRegNotEqConst(unsigned reg, unsigned val)
 void Disassembler::insSetReg(unsigned reg, unsigned val)
 {
    ostringstream ss;
-   ss << "mov v" << hex << reg << ", 0x" << setfill('0') << setw(2) << hex << val;
+   ss << "ld v" << hex << reg << ", #" << setfill('0') << setw(2) << hex << val;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -89,7 +95,7 @@ void Disassembler::insSetReg(unsigned reg, unsigned val)
 void Disassembler::insAddReg(unsigned reg, unsigned val)
 {
    ostringstream ss;
-   ss << "add v" << hex << reg << ", 0x" << setfill('0') << setw(2) << hex << val;
+   ss << "add v" << hex << reg << ", #" << setfill('0') << setw(2) << hex << val;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -98,7 +104,7 @@ void Disassembler::insAddReg(unsigned reg, unsigned val)
 void Disassembler::insRandomNum(unsigned reg, unsigned mask)
 {
    ostringstream ss;
-   ss << "rand v" << hex << reg << ", 0x" << setfill('0') << setw(2) << hex << mask;
+   ss << "rnd v" << hex << reg << ", #" << setfill('0') << setw(2) << hex << mask;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -107,7 +113,7 @@ void Disassembler::insRandomNum(unsigned reg, unsigned mask)
 void Disassembler::insSkipNextIfRegEq(unsigned reg1, unsigned reg2)
 {
    ostringstream ss;
-   ss << "skipnext_eq v" << hex << reg1 << ", v" << reg2;
+   ss << "se v" << hex << reg1 << ", v" << reg2;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -116,7 +122,7 @@ void Disassembler::insSkipNextIfRegEq(unsigned reg1, unsigned reg2)
 void Disassembler::insSkipNextIfRegNotEq(unsigned reg1, unsigned reg2)
 {
    ostringstream ss;
-   ss << "skipnext_ne v" << hex << reg1 << ", v" << reg2;
+   ss << "sne v" << hex << reg1 << ", v" << reg2;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -125,7 +131,7 @@ void Disassembler::insSkipNextIfRegNotEq(unsigned reg1, unsigned reg2)
 void Disassembler::insSetRegToRegVal(unsigned regToSet, unsigned regVal)
 {
    ostringstream ss;
-   ss << "mov v" << hex << regToSet << ", v" << regVal;
+   ss << "ld v" << hex << regToSet << ", v" << regVal;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -179,7 +185,7 @@ void Disassembler::insSubRegs(unsigned reg, unsigned otherReg)
 void Disassembler::insSubRegsOtherOrder(unsigned reg, unsigned otherReg)
 {
    ostringstream ss;
-   ss << "subrev v" << hex << reg << ", v" << otherReg;
+   ss << "subn v" << hex << reg << ", v" << otherReg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -188,7 +194,7 @@ void Disassembler::insSubRegsOtherOrder(unsigned reg, unsigned otherReg)
 void Disassembler::insRightShift(unsigned reg)
 {
    ostringstream ss;
-   ss << "right_shift v" << hex << reg;
+   ss << "shr v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -197,7 +203,7 @@ void Disassembler::insRightShift(unsigned reg)
 void Disassembler::insLeftShift(unsigned reg)
 {
    ostringstream ss;
-   ss << "left_shift v" << hex << reg;
+   ss << "shl v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -206,7 +212,7 @@ void Disassembler::insLeftShift(unsigned reg)
 void Disassembler::insSkipNextIfKeyPressed(unsigned reg)
 {
    ostringstream ss;
-   ss << "skipnext_on_keypress v" << hex << reg;
+   ss << "skp v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -215,7 +221,7 @@ void Disassembler::insSkipNextIfKeyPressed(unsigned reg)
 void Disassembler::insSkipNextIfKeyNotPressed(unsigned reg)
 {
    ostringstream ss;
-   ss << "skipnext_on_not_keypress v" << hex << reg;
+   ss << "sknp v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -223,7 +229,7 @@ void Disassembler::insSkipNextIfKeyNotPressed(unsigned reg)
 void Disassembler::insWaitForKeyPress(unsigned reg)
 {
    ostringstream ss;
-   ss << "store_keypress v" << hex << reg;
+   ss << "ld v" << hex << reg << ", k";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -232,7 +238,7 @@ void Disassembler::insWaitForKeyPress(unsigned reg)
 void Disassembler::insSetRegToDelayTimer(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov v" << hex << reg << ", delay_timer";
+   ss << "ld v" << hex << reg << ", dt";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -241,7 +247,7 @@ void Disassembler::insSetRegToDelayTimer(unsigned reg)
 void Disassembler::insSetDelayTimer(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov delay_timer, v" << hex << reg;
+   ss << "ld dt, v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -250,7 +256,7 @@ void Disassembler::insSetDelayTimer(unsigned reg)
 void Disassembler::insSetSoundTimer(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov sound_timer, v" << hex << reg;
+   ss << "ld st, v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -268,7 +274,7 @@ void Disassembler::insAddRegToIndexReg(unsigned reg)
 void Disassembler::insSetIndexToCharInReg(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov I, (font_base + v" << hex << reg << ")";
+   ss << "ld f, v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -277,7 +283,7 @@ void Disassembler::insSetIndexToCharInReg(unsigned reg)
 void Disassembler::insSetIndexMemoryToRegBcd(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov [I:I+2], bcd(" << hex << reg << ")";
+   ss << "ld b, v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -286,7 +292,7 @@ void Disassembler::insSetIndexMemoryToRegBcd(unsigned reg)
 void Disassembler::insStoreRegsToIndexMemory(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov [I:I+" << reg << "], v0:v" << hex << reg;
+   ss << "ld [I], v" << hex << reg;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -295,7 +301,7 @@ void Disassembler::insStoreRegsToIndexMemory(unsigned reg)
 void Disassembler::insLoadRegsFromIndexMemory(unsigned reg)
 {
    ostringstream ss;
-   ss << "mov v0:v" << reg << ", [I:I+" << reg << "]";
+   ss << "ld v" << hex << reg << ", [I]";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -304,7 +310,7 @@ void Disassembler::insLoadRegsFromIndexMemory(unsigned reg)
 void Disassembler::insDrawSprite(unsigned xReg, unsigned yReg, unsigned height)
 {
    ostringstream ss;
-   ss << "draw_sprite xreg=v" << xReg << ", yreg=v" << yReg << ", h=" << height;
+   ss << "drw v" << hex << xReg << ", v" << yReg << ", #" << height;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -315,7 +321,14 @@ void Disassembler::printDisassembly()
 
    while (curAddress < theAddress)
    {
-      printf("0x%04x\t%s\n", curAddress, theDisassembly[curAddress].c_str());
+      if (thePrintAddressOption)
+      {
+         printf("0x%04x\t%s\n", curAddress, theDisassembly[curAddress].c_str());
+      }
+      else
+      {
+         printf("%s\n", theDisassembly[curAddress].c_str());
+      }
       curAddress += 2;
    }
 }
@@ -332,7 +345,7 @@ void Disassembler::insBad(unsigned opCode)
 void Disassembler::insScrollDown(unsigned char numLines)
 {
    ostringstream ss;
-   ss << "scroll_down " << numLines;
+   ss << "scd " << numLines;
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -340,7 +353,7 @@ void Disassembler::insScrollDown(unsigned char numLines)
 void Disassembler::insScrollLeft()
 {
    ostringstream ss;
-   ss << "scroll_left";
+   ss << "scl";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -348,7 +361,7 @@ void Disassembler::insScrollLeft()
 void Disassembler::insScrollRight()
 {
    ostringstream ss;
-   ss << "scroll_right";
+   ss << "scr";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -356,7 +369,7 @@ void Disassembler::insScrollRight()
 void Disassembler::insQuitEmulator()
 {
    ostringstream ss;
-   ss << "stop";
+   ss << "exit";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -364,7 +377,7 @@ void Disassembler::insQuitEmulator()
 void Disassembler::insEnterLowResMode()
 {
    ostringstream ss;
-   ss << "low_res";
+   ss << "low";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -372,7 +385,7 @@ void Disassembler::insEnterLowResMode()
 void Disassembler::insEnterHighResMode()
 {
    ostringstream ss;
-   ss << "high_res";
+   ss << "high";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -396,7 +409,7 @@ void Disassembler::insLoadHp48Flags(unsigned char reg)
 void Disassembler::insSetIndexToHiResCharInReg(unsigned char reg)
 {
    ostringstream ss;
-   ss << "mov I, (hires_font_base + v" << hex << (unsigned int) reg << ")";
+   ss << "ld hf, v" << hex << (unsigned int) reg;
 
    theDisassembly[theAddress] = ss.str();
 }

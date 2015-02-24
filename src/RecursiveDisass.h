@@ -31,6 +31,8 @@ protected:
 
    set< unsigned int > theCodeBlockHistory;
 
+   void labelCodeBlock(unsigned int addr);
+
    // End of code block instructions that need to be detected
    void insReturnFromSub();
    void insJumpWithOffset(unsigned addr); // Destination is the start of a block, but we can't easily determine destination
