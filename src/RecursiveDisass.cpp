@@ -24,21 +24,6 @@ void RecursiveDisass::decodeCodeSegment(unsigned int startAddress)
       decodeCodeSegmentBody();
    }
 
-//   if (theDisassembly[startAddress].find("BEGINNING OF CODE BLOCK") == string::npos)
-//   {
-//      ostringstream oss;
-//      oss << "loc_" << setfill('0') << setw(4) << hex << startAddress  << ":\n";
-
-//      theDisassembly[startAddress].insert(0, oss.str());
-
-//      int numCharsInString = theDisassembly[startAddress].length();
-//      theDisassembly[startAddress].append(40 - numCharsInString, ' ');
-
-//      theDisassembly[startAddress].append("\t; == BEGINNING OF CODE BLOCK ==");
-//   }
-
-   labelCodeBlock(startAddress);
-
    if (theBlockStartAddresses.size() > 0)
    {
       unsigned int nextAddress = theBlockStartAddresses.back();
@@ -50,8 +35,6 @@ void RecursiveDisass::decodeCodeSegment(unsigned int startAddress)
 
 void RecursiveDisass::decodeCodeSegmentBody()
 {
-   //printf("%s - Address = 0x%04x\n", __PRETTY_FUNCTION__, theAddress);
-
    if ( ((theAddress - ROM_START_ADDRESS + 1) > theRomData.size() ) &&
         (theAddress >= ROM_START_ADDRESS) )
    {
@@ -65,12 +48,9 @@ void RecursiveDisass::decodeCodeSegmentBody()
    if (theDisassembly.find(theAddress - ROM_START_ADDRESS) != theDisassembly.end() )
    {
       // We have reached an instruction that has already been decoded
-      printf("decoding segment body - end of block - address 0x%04x already decoded\n", theAddress);
       theEndOfBlockDetected = true;
       return;
    }
-
-   //printf("%s - Address = 0x%04x\n", __PRETTY_FUNCTION__, startAddress);
 
    unsigned char opCode[2];
    opCode[0] = theRomData[theAddress - ROM_START_ADDRESS];
@@ -87,30 +67,8 @@ void RecursiveDisass::addCodeBlock(unsigned int startAddress)
       theBlockStartAddresses.push_back(startAddress);
       theCodeBlockHistory.insert(startAddress);
    }
-   else
-   {
-      // Code has already been analyzed before, just add a jump/call label
-      labelCodeBlock(startAddress);
-   }
 
 }
-
-void RecursiveDisass::labelCodeBlock(unsigned int addr)
-{
-   if (theDisassembly[addr].find("BEGINNING OF CODE BLOCK") == string::npos)
-   {
-      ostringstream oss;
-      oss << "loc_" << setfill('0') << setw(4) << hex << addr  << ":\n";
-
-      theDisassembly[addr].insert(0, oss.str());
-
-      int numCharsInString = theDisassembly[addr].length();
-      theDisassembly[addr].append(40 - numCharsInString, ' ');
-
-      theDisassembly[addr].append("\t; == BEGINNING OF CODE BLOCK ==");
-   }
-}
-
 
 // End of code block instructions that need to be detected
 void RecursiveDisass::insReturnFromSub()
@@ -143,6 +101,8 @@ void RecursiveDisass::insCall(unsigned addr)
 {
    addCodeBlock(addr);
    Disassembler::insCall(addr);
+
+   theLabels.insert(addr);
 }
 
 void RecursiveDisass::insSkipNextIfRegEqConst(unsigned reg, unsigned val)
@@ -189,6 +149,8 @@ void RecursiveDisass::insJump(unsigned addr)
 
    theEndOfBlockDetected = true;
    Disassembler::insJump(addr);
+
+   theLabels.insert(addr);
 }
 
 
@@ -197,6 +159,9 @@ void RecursiveDisass::printDisassembly()
    unsigned int curAddress = ROM_START_ADDRESS;
    while (curAddress < ROM_START_ADDRESS + theRomData.size())
    {
+      if (theLabels.find(curAddress) != theLabels.end())
+         printf("loc_%04x:   ; == START OF CODE BLOCK ==\n", curAddress);
+
       // Make a string for the address (empty if address not to be printed)
       ostringstream oss;
       oss << "0x" << setfill('0') << setw(4) << hex << curAddress  << "\t";

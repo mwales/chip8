@@ -25,13 +25,13 @@ protected:
 
    vector< unsigned char > theRomData;
 
-   vector< unsigned int > theBlockStartAddresses;
-
-   void addCodeBlock(unsigned int startAddress);
+   vector< unsigned int > theBlockStartAddresses;   
 
    set< unsigned int > theCodeBlockHistory;
 
-   void labelCodeBlock(unsigned int addr);
+   set< unsigned int > theLabels;
+
+   void addCodeBlock(unsigned int startAddress);
 
    // End of code block instructions that need to be detected
    void insReturnFromSub();

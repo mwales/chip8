@@ -2,7 +2,7 @@
 
 Chip8 Emulation and Disassembler
 
-Note to audience:  This will be an exploration process (not reading a guide on how its recommended to do something, but just blast forward on my own path of discovery, which could end in spectacular, but educational, failure.)  I realize that this is not the best attitude for a workplace, but my participation in the challenge is also to have fun and learn.
+Note to audience:  This will be an exploration process (not reading a guide on how its recommended to do something, but just blast forward on my own path of discovery, which could end in spectacular, but educational, failure.)
 
 # Tools
 
@@ -14,7 +14,7 @@ Qt for graphical interface
 
 # Build instructions
 
-I have only tested on Ubuntu 14.04 64-bit.
+I have tested regularly on my Ubuntu 14.04 64-bit development platform.  I have occasionally tested on Windows XP and Windows 10 Tech Preview running in VMs.
 
 ## Disassembler
 
@@ -24,11 +24,11 @@ This should be normal portable C++.  I have a compilation script in the src dire
 
 ## Emulator
 
-The emulator should only depend on Qt.  I'm using 4.8.6 that I'm 75% sure is in the Ubuntu package repo.  I wanted to do more as standard C\+\+, but I needed a threading library, so Qt picks up that responsibility rather than pthread or C\+\+ 11 support.
+The emulator should only depend on Qt and libao (cross platform audio library).  I'm using Qt 4.8.6 that I'm 75% sure is in the Ubuntu package repo.  I wanted to do more as standard C\+\+, but I needed a threading library, so Qt picks up that responsibility rather than pthread or C\+\+ 11 support.
 
 I also briefly tested with Qt 5.3.
 
-Libraries required are libao (audio) and Qt.  Not sure exactly what packages Qt is in, I suspect it is either libqt4-dev or qt5-defaults.
+Not sure exactly what packages Qt is in, I suspect it is either libqt4-dev or qt5-defaults.  The audio library was libao-dev package.
 
 To compile the Qt application, cd with your terminal to src directory.
 
@@ -50,7 +50,7 @@ Inspired by the mobile hit game Flappy Bird, I created a Chip-8 version.  It was
 
 ![Floppy Bird](screens/floppybird_title.png)
 
-![Lunar Lander](screens/floppybird_ingame.png)
+![Flopping Bird](screens/floppybird_ingame.png)
 
 ## Screenshots
 
@@ -63,6 +63,24 @@ Inspired by the mobile hit game Flappy Bird, I created a Chip-8 version.  It was
 ![Space Invaders](screens/space_invaders.png)
 
 ![Space Invaders](screens/space_invaders2.png)
+
+## Screenshots - Super Chip-8 Graphical Mode
+
+### Joust - Works great!
+
+![JoustTitle](screens/joust_title.png)
+
+![JoustGameplay](screens/joust.png)
+
+### Car - Works great!
+
+![Car](screens/car.png)
+
+### Blinky Hi-Res - Has issues...
+
+The bad ghosts sprite doesn't always disasppear and other weird stuff.  Still investigating.
+
+![Blinky-HiRes](screens/Blinky.png)
 
 ### Cpu Viewer / ROM Debugging Options
 
@@ -127,6 +145,8 @@ This will interpret all bytes as opcodes, which shows stuff like the following:
     0x0540  mov v0, v0
     0x0542  BAD OPCODE 0x00ff
 
+== Instructions updated to more closely reflect what the CHIPPER assembler uses ==
+
 #### Recursive disassemble (way better)
 
 	./chip8da -r ~/working/chip8/cots/roms/c/hidden.rom
@@ -174,6 +194,37 @@ Those same sections of code now disassemble as follows:
     0x0535  DATA = 0xff     GRAPHIC = ########
 
 We can now plainly see the ASCII text at the beginning of the ROM, and the graphics later in the ROM.  There were no bad op-codes found when disassembling this way.
+
+Use the -h flag on disassembly to hide the address field.  This creates an output that can assembled with CHIPPER.
+
+	./chip8da -r -h ../customRom/floppybird.rom
+
+Output:
+
+    ; Setting used by the chipper assembler
+    option schip11
+    option binary
+    align off
+
+    ; Recursive Disassembly
+    End of file
+    loc_0200:   ; == START OF CODE BLOCK ==
+    call loc_02b2
+    ld va, #00
+    ld vd, #06
+    ld ve, #06
+    ld v9, #00
+    call loc_028c
+    loc_020c:   ; == START OF CODE BLOCK ==
+    cls
+    call loc_0228
+    call loc_0296
+    call loc_027e
+    ld vf, #00
+    call loc_0264
+    se vf, #00
+    jp loc_0334
+    ld v1, #0a
 
 ## Op-Code Patterns
 
@@ -230,6 +281,22 @@ Operations involving only 1 general purpose register:
 Draw Sprite Command (2 registers, + 4 bit constant)
 
 * DXYN: Draw sprite on screen at coordinate (VX,VY).  Sprite Height N.  Sprite contents at I.
+
+## New and Modified Op-Codes for Super Chip-8
+
+* DXYN: Draw Sprite.  When N is zero, there is now support for a 16-row sprite to be drawn.  If in High-Res mode, the sprite will also be double width (16 pixels), and will require I to be pointed at 32-bytes of data.  In Low-Res mode, it will support writing a 8x16 pixel sprite.
+
+== My reference emulator I use doesn't support a sprites on the bottom of the screen overflowing to the top of the screen in High-Res mode, and it breaks my minesweeper rom, need to make this configurable. ==
+
+* 00CN: Scroll Down N pixels for High-Res mode, or N/2 pixels for Low-Res mode.  David Winter describes the possibility for a half-pixel shift for the low-res mode if N is odd.  I did not implement because it sounds ridiculous.
+* 00FC: Scroll Left 4 pixels for High-Res mode, or 2 pixels for Low-Res mode
+* 00FB: Scroll Right 4 pixels for High-Res mode, or 2 pixels for Low-Res mode
+* 00FD: Quit.  Stops emulator.
+* 00FE: Low-Res Mode (64 x 32 resolution)
+* 00FF: High-Res Mode (128 x 64 resolution)
+* FX30: Load Hi-Res Font.  I supported characters 0-F, but most emulators only support 0-9.
+* Save HP48 Flags.  Did not implement
+* Load HP48 Flags.  Did not implement
 
 ## Registers
 
