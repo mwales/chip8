@@ -10,6 +10,7 @@ EmulationScreenOled::EmulationScreenOled(QObject* parent):
    theRepaintTimer.start();
 
    theOledScreen.begin();
+   //theOledScreen.clear();
 }
 
 void EmulationScreenOled::forceRepaint ()
@@ -20,6 +21,7 @@ void EmulationScreenOled::forceRepaint ()
    int pixelWidth = theOledScreen.width() / xRes;
    int pixelHeight = theOledScreen.height() / yRes;
 
+   
    thePixelsLock.lockForRead();
    for(int y = 0; y < yRes; y++)
    {
@@ -27,10 +29,16 @@ void EmulationScreenOled::forceRepaint ()
       {
          if (!thePixels[y][x])
          {
-            theOledScreen.fillRect(x,y,pixelWidth,pixelHeight, WHITE);
+            theOledScreen.fillRect(x, y, pixelWidth, pixelHeight, BLACK);
+         }
+         else
+         {
+            theOledScreen.fillRect(x, y, pixelWidth, pixelHeight, WHITE);
          }
       }
    }
    thePixelsLock.unlock();
+
+   theOledScreen.display();
 
 }
