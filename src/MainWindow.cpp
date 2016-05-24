@@ -8,6 +8,10 @@
 #include "ui_MainWindow.h"
 #include "KeyMapEditor.h"
 
+#ifdef OLED_DISPLAY
+#include "EmulationScreenOled.h"
+#endif
+
 const int X_RES = 64;
 const int Y_RES = 32;
 const int PIXEL_SIZE = 10;
@@ -49,6 +53,10 @@ MainWindow::MainWindow(QWidget *parent) :
    enableSound();
 
    theEmulator.setEmulationScreen(ui->screenWidget);
+
+#ifdef OLED_DISPLAY
+   theEmulator.setEmulationScreen(new EmulationScreenOled());
+#endif
 
    // Not sure how standardized Chip-8 emulators are, but I'm using JChip8 as reference so I'll map my keys
    // the same as that emulator.

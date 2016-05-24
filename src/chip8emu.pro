@@ -11,11 +11,28 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = chip8emu
 TEMPLATE = app
 
+# You can pass this option (and OLED_DISPLAY) from the command line, like the following:
+# qmake CONFIG+=NO_SOUND CONFIG+= OLED_DISPLAY
+
 CONFIG(NO_SOUND) {
    DEFINES+=NO_SOUND
 }
 else {
    LIBS += -lao
+}
+
+#CONFIG+= OLED_DISPLAY
+
+CONFIG(OLED_DISPLAY) {
+   DEFINES+=OLED_DISPLAY
+   LIBS += -L$$_PRO_FILE_PWD_/Adafruit_SSD1306/build -lSSD1306 \
+           -L$$_PRO_FILE_PWD_/Adafruit_SSD1306/build/Adafruit-GFX-Library -lAdafruit_GFX \
+           -L$$_PRO_FILE_PWD_/Adafruit_SSD1306/build/ArduinoForLinux -larduino
+   INCLUDEPATH += Adafruit_SSD1306 \
+                  Adafruit_SSD1306/Adafruit-GFX-Library
+   QMAKE_CXXFLAGS += --std=c++11
+   SOURCES += EmulationScreenOled.cpp 
+   HEADERS += EmulationScreenOled.h
 }
 
 

@@ -298,6 +298,8 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 * Save HP48 Flags.  Did not implement
 * Load HP48 Flags.  Did not implement
 
+Super Chip-8 also offers double the screen resolution (128x64) over the standard Chip-8 resolution of 64x32.
+
 ## Registers
 
 * V0: General purpose / jump offset 
@@ -318,4 +320,4 @@ Draw Sprite Command (2 registers, + 4 bit constant)
 
 * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
-- David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
+* David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
