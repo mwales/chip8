@@ -60,7 +60,7 @@ bool EmulationScreen::drawSprite(unsigned int x, unsigned int y, QVector<unsigne
    thePixelsLock.lockForRead();
 
    unsigned int row = y;
-   for(unsigned int rowsProcessed = 0; rowsProcessed < spriteData.size(); rowsProcessed++)
+   for(int rowsProcessed = 0; rowsProcessed < spriteData.size(); rowsProcessed++)
    {
       unsigned int col = x;
       for(unsigned int colsProcessed = 0; colsProcessed < 8; colsProcessed++)

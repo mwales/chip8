@@ -592,12 +592,12 @@ void Emulator::insEnterHighResMode()
    theHighResMode = true;
 }
 
-void Emulator::insSaveHp48Flags(unsigned char reg)
+void Emulator::insSaveHp48Flags(unsigned char)
 {
    qDebug() << __FUNCTION__;
 }
 
-void Emulator::insLoadHp48Flags(unsigned char reg)
+void Emulator::insLoadHp48Flags(unsigned char)
 {
    qDebug() << __FUNCTION__;
 }
