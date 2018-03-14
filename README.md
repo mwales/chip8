@@ -313,7 +313,19 @@ Super Chip-8 also offers double the screen resolution (128x64) over the standard
 
 # Notes about HP 48G
 
+Chip-8 had a popularity resurgence in the 1990s when Andreas Gustafsson ported an
+emulator to the very memory contrained HP-48x graphing calculators that were
+popular in the engineering community at the time.  The small size of the emulator
+and the Chip-8 ROMs allowed several of the games to be loaded at one time on a
+calculator.
+
+I've tried my best to document below how to get the correct binaries and load your
+HP48G calculator with a Chip-8 emulator and some ROMs.
+
 ## Kermit
+
+Kermit is the standard file transfer utility for transfering data to and from an
+HP48G calculator using it's built in serial port.
 
 It's in the standard Ubuntu repos, so easy to install
 
@@ -346,6 +358,10 @@ disappeared for some reason), but the ones that worked for me were:
 
 * GCHIP
 * GCHPC
+
+## Video Tutorial of Loading and Playing Games on HP48G
+
+[![Thumbnail of Youtube Tutorial Video](https://img.youtube.com/vi/KvU92qStatw/0.jpg)](https://www.youtube.com/watch?v=KvU92qStatw)
 
 # Reference Sites:
 
