@@ -311,17 +311,6 @@ Super Chip-8 also offers double the screen resolution (128x64) over the standard
 * Delay Timer
 * Sound Timer
 
-
-# Reference Sites:
-
-* Chip 8 instruction set (including superchip instructions):  http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
-
-* http://www.emulator101.com/
-
-* http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
-
-* David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
-
 # Notes about HP 48G
 
 ## Kermit
@@ -348,3 +337,27 @@ typed in the following commands:
     show communications
     show modem
 
+## HP48G Chip-8 Emulators
+
+At the bottom of this readme I include a link to the github repo containing the
+Chip-8 emulator for HP48G calculator that I have tested and confirmed working.
+Chromatophore has several binaries in his repo (I also forked it incase it
+disappeared for some reason), but the ones that worked for me were:
+
+* GCHIP
+* GCHPC
+
+# Reference Sites:
+
+* Chip 8 instruction set (including superchip instructions):  http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
+
+* http://www.emulator101.com/
+
+* http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
+
+* David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
+
+* Chip-8 emulator that works on HP48G: https://github.com/Chromatophore/HP48-Superchip
+
+* A really cool Chip-8 Javascript emulator you can try out directly in your browser, and some
+  new and unique ROMS from OcotoJams:  https://github.com/JohnEarnest/Octo
