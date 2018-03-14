@@ -321,3 +321,30 @@ Super Chip-8 also offers double the screen resolution (128x64) over the standard
 * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 * David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
+
+# Notes about HP 48G
+
+## Kermit
+
+It's in the standard Ubuntu repos, so easy to install
+
+    sudo apt-get install ckermit
+
+I plugged HP-48G into USB-Serial converter.  Started kermit.  And then
+typed in the following commands:
+
+    set line /dev/ttyUSB0
+    set speed 9600
+    set parity none
+    set file type ascii
+    set carrier-watch off
+    set modem type direct
+    set flow none
+    set block 2
+    set control prefix all
+
+    send filename.bin
+
+    show communications
+    show modem
+
