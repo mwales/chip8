@@ -311,6 +311,12 @@ Super Chip-8 also offers double the screen resolution (128x64) over the standard
 * Delay Timer
 * Sound Timer
 
+## Test Roms
+
+I saw a post on r/emudev about a Chip-8 test ROM.  I tried one of the test ROMs
+and found a bug in my emualtor right away.  I still need to run the SuperChip
+version of the test.  The author of the test ROMs is BestCoder and Sergey
+Naydenov, see readme of the ROMS for more details.
 
 # Reference Sites:
 
@@ -321,3 +327,9 @@ Super Chip-8 also offers double the screen resolution (128x64) over the standard
 * http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 
 * David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
+
+* https://github.com/stianeklund/chip8 - Chip-8 project where I found the test roms at
+
+* https://github.com/JohnEarnest/Octo - Octo project is an online emulator and
+  Chip-8 toolset.  Has many new unique games and a new XO-Chip extension that I
+  need to add into my emulator one day.

@@ -345,7 +345,7 @@ void Emulator::insRightShift(unsigned reg)
 
 void Emulator::insLeftShift(unsigned reg)
 {
-   if (theCpuRegisters[reg] & 0x8)
+   if (theCpuRegisters[reg] & 0x80)
    {
       theCpuRegisters[0xf] = 1;
    }
