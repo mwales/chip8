@@ -1,0 +1,595 @@
+Chipper V2.11 is a toy assembler for a toy language called Chip-8,
+and three emulators called Chip-48, Super Chip-48 V1.0 and V1.1. 
+
+
+Chipper V2.11 is written by Christian Egeberg 2/11-'90 .. 20/8-'91.
+In order to utilize this assembler, you will need the following:
+
+    *  A computer, preferably with 512k bytes or more memory.
+    *  A Kernighan-Ritchie C, ANSI C, or C++ compiler for the computer. 
+    *  A Hewlett Packard 48 series calculator.
+    *  A serial cable for connecting the computer and the calculator.
+    *  A Kermit compatible communication program for the computer.
+    *  A Chip-8 emulator program for the calculator.
+
+    *  You may also need the HP48 decode program called ASC->.
+
+
+Chip-8 is a video game interpreter commonly found on RCA CDP1802 based
+home computers in the late 1970's. Chip-48 emulates the original Chip-8
+instruction set precisely, except for the calling of CDP1802 routines.
+Super Chip-48 V1.0 and V1.1 extend the instruction set of Chip-48, in
+order to utilize the higher screen resolution of the Hewlett Packard
+calculator, and also provide a few additional features.
+
+
+Chip-8 programs have access to 4k bytes of memory, addressed from #000
+to #FFF. All programs start at address #200, because of the memory
+requirements of the original Chip-8 interpreter. Instructions are 16
+bits long and start at even memory locations.
+
+
+Chip-8 has 16 general registers, named V0, V1, V2, .. , VE, VF. These
+are 8 bits wide. The VF register works as carry flag and collision
+indicator, and is modified by certain instructions. A 16 bit register
+named I also exists. The lower 12 bits of this register are typically
+used as a memory pointer. A delay timer and a sound timer is provided
+as well. These are 8 bits wide and decrement at around 60 hertz, until
+a value of 0 is reached. The calculator beeper will buzz while the
+sound timer is nonzero.
+
+
+Chip-8 screen resolution is 64 pixels horisontal, 32 pixels vertical.
+Screen origin is the upper left corner. A graphics object called a
+sprite is 8 pixels wide and from 1 to 15 pixels high, meaning they are
+between 1 and 15 bytes large. The upper row of the sprite is in the
+first byte. The leftmost pixel is in the most significant bit. Sprites
+are XORed onto the background. If this causes any pixel to be erased,
+VF is set to #01, else VF will be #00. Super Chip-48 V1.0 and V1.1
+support an additional screen mode with a resolution of 128 pixels
+horisontal and 64 pixels vertical. A new 16 by 16 pixel sprite size is
+also provided, 32 bytes large. 2 bytes, or a word, per row.
+
+
+Chip-8 programs may access 16 keys numbered from #0 to #F. The HP48
+keyboard mapping is shown below:
+
+    ( 7 )  ->  #1    ( 8 )  ->  #2    ( 9 )  ->  #3    ( / )  ->  #C
+    ( 4 )  ->  #4    ( 5 )  ->  #5    ( 6 )  ->  #6    ( * )  ->  #D
+    ( 1 )  ->  #7    ( 2 )  ->  #8    ( 3 )  ->  #9    ( - )  ->  #E
+    ( 0 )  ->  #A    ( . )  ->  #0    ( _ )  ->  #B    ( + )  ->  #F
+
+
+A following table contains Chip instruction opcodes, the list of
+interpreters that support each opcode, and the syntax of Chipper V2.11.
+A brief explanation of terms used in the table preceeds it:
+
+    CHIP8       means the instruction is supported by Chip-8.
+    CHIP48      instructions are valid on Chip-48.
+    SCHIP10     instructions need Super Chip-48 V1.0.
+    SCHIP11     instructions need Super Chip-48 V1.1.
+
+    NNN         indicates a 12 bit address.
+    KK          means an 8 bit constant.
+    X           denotes a 4 bit register number.
+    Y           denotes a 4 bit register number.
+    1..9, A..F  are hexadecimal digits.
+
+    Word        represents an expression defining a 16 bit constant.
+    Addr        is an expression resulting in a 12 bit address.
+    Byte        results in an 8 bit constant.
+    Nibble      would be a 4 bit constant.
+    Expr        may be any of the above expressions.
+    Char        is an ASCII character. 
+    String      is a sequence of ASCII characters.
+
+Text in curly brackets is optional. Instruction codes are written most
+significant byte first, least significant last. The instructions are:
+
+    #FX1E  ADD   I, VX           ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set I = I + VX
+    #7XKK  ADD   VX, Byte        ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX + Byte
+    #8XY4  ADD   VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX + VY, VF = carry
+    #8XY2  AND   VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX & VY, VF updates
+    #2NNN  CALL  Addr            ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Call subroutine at Addr (16 levels)
+    #00E0  CLS                   ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Clear display
+    #DXYN  DRW   VX, VY, Nibble  ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Draw Nibble byte sprite stored at
+                                 ; [I] at VX, VY. Set VF = collision
+    #DXY0  DRW   VX, VY, 0       ; SCHIP10, SCHIP11
+                                 ; Draw extended sprite stored at [I]
+                                 ; at VX, VY. Set VF = collision
+    #00FD  EXIT                  ; SCHIP10, SCHIP11
+                                 ; Terminate the interpreter 
+    #00FF  HIGH                  ; SCHIP10, SCHIP11
+                                 ; Enable extended screen mode
+    #1NNN  JP    Addr            ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Jump to Addr
+    #BNNN  JP    V0, Addr        ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Jump to Addr + V0
+    #FX33  LD    B, VX           ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Store BCD of VX in [I], [I+1], [I+2]
+    #FX15  LD    DT, VX          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set delaytimer = VX
+    #FX29  LD    F, VX           ; CHIP8, CHIP48
+                                 ; Point I to 5 byte numeric sprite
+                                 ; for value in VX
+    #FX30  LD    HF, VX          ; SCHIP10, SCHIP11
+                                 ; Point I to 10 byte numeric sprite
+                                 ; for value in VX
+    #ANNN  LD    I, Addr         ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set I = Addr
+    #FX29  LD    LF, VX          ; SCHIP10, SCHIP11
+                                 ; Point I to 5 byte numeric sprite
+                                 ; for value in VX
+    #FX75  LD    R, VX           ; SCHIP10, SCHIP11
+                                 ; Store V0 .. VX in RPL user flags.
+                                 ; Only V0 .. V7 valid
+    #FX18  LD    ST, VX          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set soundtimer = VX
+    #6XKK  LD    VX, Byte        ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = Byte
+    #FX07  LD    VX, DT          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = delaytimer
+    #FX0A  LD    VX, K           ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = key, wait for keypress
+    #FX85  LD    VX, R           ; SCHIP10, SCHIP11
+                                 ; Read V0 .. VX from RPL user flags.
+                                 ; Only V0 .. V7 valid
+    #8XY0  LD    VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VY, VF updates
+    #FX65  LD    VX, [I]         ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Read V0 .. VX from [I] .. [I+X]
+    #FX55  LD    [I], VX         ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Store V0 .. VX in [I] .. [I+X]
+    #00FE  LOW                   ; SCHIP10, SCHIP11
+                                 ; Disable extended screen mode
+    #8XY1  OR    VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX | VY, VF updates
+    #00EE  RET                   ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Return from subroutine (16 levels)
+    #CXKK  RND   VX , Byte       ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = random & Byte
+    #00CN  SCD   Nibble          ; SCHIP11
+                                 ; Scroll screen Nibble lines down
+    #00FC  SCL                   ; SCHIP11
+                                 ; Scroll screen 4 pixels left         
+    #00FB  SCR                   ; SCHIP11
+                                 ; Scroll screen 4 pixels right    
+    #3XKK  SE    VX, Byte        ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if VX == Byte
+    #5XY0  SE    VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if VX == VY
+    #8XYE  SHL   VX {, VY}       ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX << 1, VF = carry
+    #8XY6  SHR   VX {, VY}       ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX >> 1, VF = carry
+    #EX9E  SKP   VX              ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if key VX down
+    #EXA1  SKNP  VX              ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if key VX up
+    #4XKK  SNE   VX, Byte        ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if VX != Byte
+    #9XY0  SNE   VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Skip next instruction if VX != VY
+    #8XY5  SUB   VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX - VY, VF = !borrow
+    #8XY7  SUBN  VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VY - VX, VF = !borrow
+    #0NNN  SYS   Addr            ; CHIP8
+                                 ; Call CDP1802 code at Addr. This  
+                                 ; is not implemented on emulators
+    #8XY3  XOR   VX, VY          ; CHIP8, CHIP48, SCHIP10, SCHIP11
+                                 ; Set VX = VX ^ VY, VF updates
+
+
+Additional Chipper V2.11 directives are:
+
+    Symbol  =        Expr           ; Assign constant value to Symbol
+            ALIGN    OFF            ; Stop word aligning each line 
+            ALIGN    ON             ; Start word aligning each line
+            DA       String         ; Define String at current address
+            DB       Byte {, ..}    ; Define Byte(s) at current address
+            DEFINE   Condition      ; Define Condition as logical true
+            DS       Byte           ; Allocate Byte uninitialized bytes
+                                    ; at current address
+            DW       Word {, ..}    ; Define Word(s) at current address
+            ELSE                    ; Toggle assembly on/off according
+                                    ; to current Condition
+            END                     ; This directive is ignored
+            ENDIF                   ; Forget current, and return to
+                                    ; previous assembly Condition
+    Symbol  EQU      Expr           ; Assign constant value to Symbol
+            IFDEF    Condition      ; Disable further assembly if
+                                    ; Condition is logical false
+            IFUND    Condition      ; Disable further assembly if 
+                                    ; Condition is logical true
+            INCLUDE  FileName       ; Include one more sourcefile.
+                                    ; FileName must be lower case
+            OPTION   BINARY         ; Select pure binary output mode
+            OPTION   CHIP8          ; Specify Chip-8 as target mode
+            OPTION   CHIP48         ; Specify Chip-48 as target mode 
+            OPTION   HPASC          ; Select HP48 ASC-> output mode
+            OPTION   HPBIN          ; Select HP48 binary output mode
+            OPTION   SCHIP10        ; Specify Super Chip-48 V1.0 mode
+            OPTION   SCHIP11        ; Specify Super Chip-48 V1.1 mode
+            OPTION   STRING         ; Select hex string output mode
+            ORG      Addr           ; Set current address to Addr
+            UNDEF    Condition      ; Define Condition as logical false
+            USED     NO             ; Enable UnusedSymbols warnings
+            USED     OFF            ; Turn off automatic Symbol used
+                                    ; when being defined feature
+            USED     ON             ; Turn on automatic Symbol used
+                                    ; when being defined feature
+            USED     Symbol {, ..}  ; Register Symbol(s) as used
+            USED     YES            ; Disable UnusedSymbols warnings
+            XREF     NO             ; Disable cross reference listing
+            XREF     OFF            ; Stop cross referencing 
+            XREF     ON             ; Start cross referencing
+            XREF     YES            ; Enable cross reference listing
+
+
+Chipper V2.11 accepts one label, or symbol, per line of source. This
+should start with an alphabetic character, and consist of only
+alphanumeric characters, otherwise the expression parser will get
+confused. All symbols will be converted to upper case, and may be
+prefixed by an underscore character and/or suffixed by a colon. These
+will be stripped off before the symbol is used. Each symbol contains a
+32 bit signed integer value, set to current address, unless defined by
+the = or EQU directives. A condition is basically a symbol restricted
+to logical true or false values, used for conditional assembly. 
+
+
+A string containing lower case letters or non alphanumeric characters,
+should be contained within apostrophes. Two apostrophes following
+eachother will produce one resultant apostrophe. Some string examples:
+
+    '11/6-'68'           ; Is an unterminated string, that engulfs what
+                         ; comes behind it, and starts with 11/6-68
+    11/6-''68            ; Evaluates to 11/6-'68
+    Christian Egeberg    ; Evaluates to CHRISTIAN EGEBERG
+    'Christian Egeberg'  ; Evaluates to Christian Egeberg
+    This, is a test      ; Evaluates to THIS
+                         ; and          IS A TEST
+    This',' is a test    ; Evaluates to THIS, IS A TEST
+    'This, is a test'    ; Evaluates to This, is a test
+    ''''                 ; Evaluates to '''
+    ''                   ; Evaluates to '
+
+
+In a numeric value, any 0 digit may be replaced with a . sign. This is 
+particularly useful when defining graphics. A numeric value may be one 
+of the following:
+
+    Symbol        ; For instance LOOP
+    Decimal       ; For instance 1106
+    #Hexadecimal  ; For instance #452
+    $Binary       ; For instance $10001010010, or $.....1...1.1..1.
+    @Octal        ; For instance @2122
+    "Character    ; For instance "'c'
+    ?             ; Current assembly address
+
+
+An expression may consist of numeric values and the following 
+operators. Horisontal lines denote different priorities. Operators 
+sharing the same priority level are evaluated left to right:
+
+    (  ; Start parentheses expression
+    )  ; End of parentheses expression
+    ----------------------------------
+    +  ; Unary plus sign
+    -  ; Unary minus sign
+    ~  ; Bitwise NOT operator
+    ----------------------------------
+    !  ; Power of operator
+    <  ; Shift left number of bits
+    >  ; Shift right number of bits
+    ----------------------------------
+    *  ; Multiply
+    /  ; Divide
+    ----------------------------------
+    +  ; Add
+    -  ; Subtract
+    ----------------------------------
+    &  ; Bitwise AND operator
+    |  ; Bitwise OR operator
+    ^  ; Bitwise XOR operator
+    ----------------------------------
+    \  ; Low priority divide
+    %  ; Modulus operator
+
+Some expression examples:
+
+    ( ? + 15 \ 16 ) * 16       ; Is a paragraph (16 bytes) alignment
+    "'c' + @2 % #20            ; Resolves to 5
+    -3 * -( -7 + ~3 )          ; Resolves to -33
+    -3 * -( -7 + ~3 ) & #FF    ; Resolves to 223
+    ( 2 + 1 )! 2 ^ $1101 > 2   ; Resolves to 10
+    (2+1)!2^$1101>2            ; Resolves to 10
+    TABLESTART + 4 * ITEMSIZE  ; Resolves
+
+
+Remarks are prefixed by semicolons, as in the above examples. Note that
+Chipper V2.11 by default performs a word alignment after every line of
+source code. This means that for instance two single parameter DB
+directives in rapid succession will have an uninitialized separator
+byte between them. Avoid this by defining any multiple of two bytes per
+DB directive, or by temporarily disabling word alignment.
+
+
+A note concerning at least the Chip-48 instruction set. The LD VX, [I]
+and LD [I], VX instructions will change the value of the I register if
+VX is different from V0. Actually, I think it is set to the address of
+the last byte/register read or written. When detecting collisions, it
+might be wise to check whether the VF register is zero or nonzero,
+rather than depending on it being equal to 1.
+
+
+Chipper V2.11 fatal error messages:
+
+    File or pipe output failed
+        ; Disk problem, perhaps no free disk space
+    Internal memory allocation mismatch
+        ; Christian Egeberg is a lousy programmer, bug(s) in program
+    No source file found
+        ; Incorrect source file name or path, must be lower case
+    Outside legal address range
+        ; Current assembly address outside #200 .. #FFF
+    Too many nested conditions
+        ; Too many IFDEFs and IFUNDs within eachother, stack blown
+    Unable to allocate more memory
+        ; Memory size or model problem, out of data storage space
+    Unable to open file
+        ; Disk problem, perhaps no write access
+    Usage is.. chipper Target [Source] [List]
+        ; Specify at least one parameter at startup
+
+
+Chipper V2.11 warning messages:
+
+    Chip-48 spesific directive
+        ; The assembler should be in CHIP48 mode for this directive
+    Chip-8 spesific directive
+        ; The assembler should be in CHIP8 mode for this directive
+    Existing symbol redefined
+        ; Symbol already defined, old value lost, watch out
+    Illegal register specified
+        ; Parameter is not a valid register for this directive
+    Incorrect number of parameters
+        ; Too few or too many parameters for this directive
+    Internal data structure mismatch
+        ; Christian Egeberg is a lousy programmer, bug(s) in program
+    No directive recognized
+        ; Two symbols defined on same line, perhaps typing mistake
+    No previous condition found
+        ; ENDIF or ELSE encountered, but no matching IFDEF or IFUND
+    No register recognized
+        ; Parameter is not a register name
+    No symbol name specified
+        ; Assignment with = or EQU, but no destination symbol
+    Not a defined symbol
+        ; Attempt to reference an undefined symbol with USED
+    Option not recognized
+        ; Not a valid parameter string for this directive
+    Parameter out of range
+        ; Parameter value too large or too small for this directive
+    Super Chip-48 V1.0.. spesific directive
+        ; The assembler should be in SCHIP10 mode for this directive
+    Super Chip-48 V1.1.. spesific directive
+        ; The assembler should be in SCHIP11 mode for this directive
+    Unable to evaluate parameter
+        ; Undefined symbol or bad syntax in expression, value lost
+    Unbalanced condition matching in file
+        ; Count of IFDEF and IFUND not equal to count of ENDIF in file
+    Unused symbol detected
+        ; Symbol defined, but not referenced, perhaps typing mistake
+
+
+Chipper V2.11 should be invoked with:
+
+    chipper Target [Source] [List]
+
+where Target is destination filename. Source is an optional filename.
+If no source name is specified, the default will be Target.chp. List is
+an optional filename. If no list name is specified, the default will be
+Target.lst. Again, Target is the destination filename. No intelligent
+filename expansion is provided. All filenames should be lower case, and
+include filenames will be forced lower case. Special cases of source
+and list filenames are . for default name, and - for stdin/stdout. The
+list file will contain all error/warning messages, hexdump of all
+generated instructions, a symboltable, an optional symbol cross
+reference, along with defined conditions.
+
+
+HPASC and STRING mode target files should be transfered as ASCII. HPBIN
+and BINARY output mode target files must be transfered as binary. Use
+kermit for downloading HPASC or HPBIN mode target files to a Hewlett
+Packard 48 series calculator, where the target files will become
+strings. Run the ASC-> program on the HPASC output mode strings, in
+order to make them equal the HPBIN ones. Put a HPBIN mode string on the
+stack, and run the appropriate Chip-48, Super Chip-48 V1.0 or V1.1.
+
+
+Chipper V2.11 reserves a few conditions for its own mode setting
+purposes. These are manipulated by directives according to the
+following table:
+
+                      A                   S   S       U       X
+                      L       C       H   C   C   U   S   X   R
+                      I   C   H   H   P   H   H   S   E   R   E
+                      G   H   I   P   H   I   I   E   D   E   F
+                      N   I   P   A   E   P   P   D   Y   F   Y
+                      O   P   4   S   A   1   1   O   E   O   E
+                      N   8   8   C   D   0   1   N   S   N   S
+
+    Default           1   0   1   0   1   0   0   0   0   1   1
+
+    ALIGN   OFF       0   .   .   .   .   .   .   .   .   .   .
+    ALIGN   ON        1   .   .   .   .   .   .   .   .   .   .
+    OPTION  BINARY    .   .   .   0   0   .   .   .   .   .   .
+    OPTION  CHIP8     .   1   1   0   0   0   0   .   .   .   .
+    OPTION  CHIP48    .   0   1   .   1   0   0   .   .   .   .
+    OPTION  HPASC     .   .   .   1   1   .   .   .   .   .   .
+    OPTION  HPBIN     .   .   .   0   1   .   .   .   .   .   .
+    OPTION  SCHIP10   .   0   0   .   1   1   0   .   .   .   .
+    OPTION  SCHIP11   .   0   0   .   1   1   1   .   .   .   . 
+    OPTION  STRING    .   .   .   1   0   .   .   .   .   .   .
+    USED    NO        .   .   .   .   .   .   .   .   0   .   .
+    USED    OFF       .   .   .   .   .   .   .   0   .   .   .
+    USED    ON        .   .   .   .   .   .   .   1   .   .   . 
+    USED    YES       .   .   .   .   .   .   .   .   1   .   .
+    XREF    NO        .   .   .   .   .   .   .   .   .   .   0
+    XREF    OFF       .   .   .   .   .   .   .   .   .   0   .
+    XREF    ON        .   .   .   .   .   .   .   .   .   1   .
+    XREF    YES       .   .   .   .   .   .   .   .   .   .   1
+
+
+Differences from Chipper V1.12:
+
+    *  Written in C, in order to run on a broader range of computers.
+       This, unfortunately, makes the program potentially more
+       unstable, because of extensive use of pointers.
+
+    *  The order of the command line parameters has changed to target,
+       source and list files. If no source and/or list file names are
+       given, these are derived from the target name by unintelligently
+       adding MS-DOS like file extensions.
+
+    *  Entirely noninteractive. All communication into Chipper V2.11
+       takes place on the command line or in the sourcefiles. There is
+       no special mode to ask for filenames.
+
+    *  Support for Chip-8, Chip-48, Super Chip-48 V1.0 and V1.1 with 
+       illegal opcode warnings and different assembler modes.
+
+    *  New directives for mode control and conditional assembly.
+
+    *  Several target file output modes, including ASC-> format.
+
+    *  Multiple pass forward referencing of symbols before use.
+
+    *  Improved warning system, with more accurate information,
+       additional messages, and new list file format, including symbol
+       cross reference listing.
+
+
+Chipper V2.11 has been tested on a small number of Kernighan-Ritchie C,
+ANSI C and C++ compilers, running on a limited range of the most
+widespread personal computer and workstation operating systems
+available today. The program has to my knowledge behaved reasonably,
+and produced the desired code. A lot of effort has gone into making
+the assembler stable and portable, but I am by no means an experienced
+C programmer, so do not make any assumption that this program should
+run flawlessly, or even run at all, on your computer system. If your C 
+compiler has an ANSI mode, enable it when compiling Chipper V2.11. If 
+your C compiler/linker imposes memory constraints on the resulting 
+program, make sure that the data storage area is allowed to grow past
+64k bytes. This makes the compact memory model ideal for compilation on
+IBM PC compatibles. The following command line should enable compact
+model, ansi compatibility and optimization for time on the likes of
+Microsoft C V6.00 for MS-DOS: 
+
+    cl /AC /Za /Ot chipper.c
+
+
+The evolution of Chipper V2.11:
+
+    V1.00:  2/11-'90 .. 4/11-'90
+
+        Written in Turbo Pascal V5.5, for MS-DOS
+        Full Chipper V1.12 instruction set and directives
+        No expression parser, only numeric assignment
+        Assembled the symbolic part of Roy Trevino's Zyzygy listfile
+
+    V1.10:  5/11-'90 .. 5/11-'90
+
+        Expression parser added
+        Current assembly address valid in expressions
+        Nondeterministic bugs during expression evaluation
+
+    V1.11:  6/11-'90 .. 7/11-'90
+
+        Expression parser completely rewritten
+        Fixed bug in current assembly address evaluation
+        Assembled parts of Blinky V1.00: 7/11-'90 .. 11/11-'90
+
+    V1.12:  7/11-'90 .. 7/11-'90
+
+        Cosmetic changes only
+        First official version, released on various ftp sites
+        Assembled the completed Blinky V1.00
+        Used for assembling Blinky V1.01: 7/6-'91 .. 7/6-'91
+        Source language of several good Chip-48 games
+
+    V1.13:  10/7-'91 .. 29/7-'91
+
+        First Kernighan-Ritchie C version, tested on SCO Xenix
+        Very close to V1.12 in syntax and functionality
+        May dump core because of string copy overflows
+        New list file format, allows use of stdin/stdout
+
+    V2.00:  29/7-'91 .. 19/8-'91
+
+        Tested on various cc, gcc, g++, msc, tc and bc compilers
+        Tested under MS-DOS, UNIX, Xenix and OS/2 operating systems
+        New instructions, directives and error messages
+        Several output file formats, conditions, cross referencing
+        Multiple pass forward referencing of symbols in expressions
+        Assembled the completed Blinky V2.00: 17/8-'91 .. 18/8-'91 
+
+    V2.10:  19/8-'91 .. 19/8-'91
+
+        Identical to V2.00 in syntax and functionality
+        Reduces memory fragmentation by using block allocations
+        Requires 30% less available memory than V2.00
+
+    V2.11:  20/8-'91 .. 20/8-'91
+
+        Identical to V2.10 in syntax and functionality
+        Second official version, released on comp.sources.hp48
+        Handles carriage return in ASC-> output format on MS-DOS
+
+
+Thank you, to all who have used Chipper V1.12, played Blinky, and/or 
+taken interest in porting Chipper to new platforms. It feels good to
+know that people actually use my programs once in a while. May all
+HP48 users enjoy their Chip-48 games for a long time to come..
+
+
+This document contains some information more or less copied directly
+off the Chip-48 documentation by Andreas Gustafsson, and off the
+Super Chip-48 documentation by Erik Bryntse. These two have done a
+great job, hacking for the HP48SX. The Chipper V2.11 syntax is a slight
+extension of the V1.12 original. This was in turn inspired by the
+Syzygy game listing posted to comp.sys.handhelds by Roy Trevino. Syzygy
+is still a great Chip-48 game.
+
+
+Chip-48 is (C) Copyright 1990 Andreas Gustafsson.
+Super Chip-48 V1.0 and V1.1 are modifications made by Erik Bryntse.
+Chipper V2.11 is (C) Copyright 1991 Christian Egeberg.
+
+Noncommercial distribution allowed, provided that copyright messages
+are preserved, and any modified versions are clearly marked as such.
+
+Chip-48, it's successors, and because of that, programs written in
+Chipper make use of undocumented low-level features of the Hewlett
+Packard 48 series calculator. They may or may not cause loss of data,
+excessive battery drainage, and/or damage to the calculator hardware.
+The authors take no responsibility whatsoever for any damage caused
+by the use of these programs.
+
+The authors takes no responsibility for loss of data, damage to any
+personal computer or workstation hardware and/or software, nor strange
+incidents caused by the use of these programs.
+
+This software is provided "as is" and without any express or implied
+warranties, including, but not limited to, the implied warranties of
+merchantability and fitness for a particular purpose.
+END_DOC
+

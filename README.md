@@ -318,6 +318,58 @@ and found a bug in my emualtor right away.  I still need to run the SuperChip
 version of the test.  The author of the test ROMs is BestCoder and Sergey
 Naydenov, see readme of the ROMS for more details.
 
+# Notes about HP 48G
+
+Chip-8 had a popularity resurgence in the 1990s when Andreas Gustafsson ported an
+emulator to the very memory contrained HP-48x graphing calculators that were
+popular in the engineering community at the time.  The small size of the emulator
+and the Chip-8 ROMs allowed several of the games to be loaded at one time on a
+calculator.
+
+I've tried my best to document below how to get the correct binaries and load your
+HP48G calculator with a Chip-8 emulator and some ROMs.
+
+## Kermit
+
+Kermit is the standard file transfer utility for transfering data to and from an
+HP48G calculator using it's built in serial port.
+
+It's in the standard Ubuntu repos, so easy to install
+
+    sudo apt-get install ckermit
+
+I plugged HP-48G into USB-Serial converter.  Started kermit.  And then
+typed in the following commands:
+
+    set line /dev/ttyUSB0
+    set speed 9600
+    set parity none
+    set file type ascii
+    set carrier-watch off
+    set modem type direct
+    set flow none
+    set block 2
+    set control prefix all
+
+    send filename.bin
+
+    show communications
+    show modem
+
+## HP48G Chip-8 Emulators
+
+At the bottom of this readme I include a link to the github repo containing the
+Chip-8 emulator for HP48G calculator that I have tested and confirmed working.
+Chromatophore has several binaries in his repo (I also forked it incase it
+disappeared for some reason), but the ones that worked for me were:
+
+* GCHIP
+* GCHPC
+
+## Video Tutorial of Loading and Playing Games on HP48G
+
+[![Thumbnail of Youtube Tutorial Video](https://img.youtube.com/vi/KvU92qStatw/0.jpg)](https://www.youtube.com/watch?v=KvU92qStatw)
+
 # Reference Sites:
 
 * Chip 8 instruction set (including superchip instructions):  http://www.multigesture.net/wp-content/uploads/mirror/goldroad/chip8_instruction_set.shtml
@@ -328,8 +380,11 @@ Naydenov, see readme of the ROMS for more details.
 
 * David Winter's Chip-8 Webpage:  http://www.pong-story.com/chip8/
 
-* https://github.com/stianeklund/chip8 - Chip-8 project where I found the test roms at
-
 * https://github.com/JohnEarnest/Octo - Octo project is an online emulator and
   Chip-8 toolset.  Has many new unique games and a new XO-Chip extension that I
   need to add into my emulator one day.
+
+* https://github.com/stianeklund/chip8 - Chip-8 project where I found the test roms at
+
+* Chip-8 emulator that works on HP48G: https://github.com/Chromatophore/HP48-Superchip
+
