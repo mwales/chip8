@@ -303,7 +303,9 @@ void Emulator::insAddRegs(unsigned reg, unsigned otherReg)
 
 void Emulator::insSubRegs(unsigned reg, unsigned otherReg)
 {
-   if (theCpuRegisters[reg] > theCpuRegisters[otherReg])
+   // I passed one of the Chip-8 ROM tests by adding equality to the following
+   // test, but I'm not sure why this is
+   if (theCpuRegisters[reg] >= theCpuRegisters[otherReg])
    {
       theCpuRegisters[0xf] = 1;
    }
@@ -317,7 +319,9 @@ void Emulator::insSubRegs(unsigned reg, unsigned otherReg)
 
 void Emulator::insSubRegsOtherOrder(unsigned reg, unsigned otherReg)
 {
-   if (theCpuRegisters[reg] < theCpuRegisters[otherReg])
+   // I passed one of the Chip-8 ROM tests by adding equality to the following
+   // test, but I'm not sure why this is
+   if (theCpuRegisters[reg] <= theCpuRegisters[otherReg])
    {
       theCpuRegisters[0xf] = 1;
    }
