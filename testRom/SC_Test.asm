@@ -1,423 +1,436 @@
-; Setting used by the chipper assembler
-option schip11
-option binary
-align off
+; Test programm for SCHIP emulators
+; Written by Sergey Naydenov (c) 2010
+; e-mail: tronix286@rambler.ru
+;
+; Compile with CHIPPER v2.1 by Christian Egeberg:
+; CHIPPER SCTEST.SC SCTEST.C8
+;
+; History:
+;   ver 1.0
+;   ver 1.1
+;           + Check FX1E (I = I + VX) buffer overflow
+;   ver 1.2
+;           + Check emulator initialization
+;           * fix ERROR BCD print procedure
 
-; Recursive Disassembly
-End of file
-jp begin_program
+OPTION BINARY 
+ALIGN OFF     
 
-; Tronix copyright notice embedded string
-db #20	;GRAPHIC =   #     
-db #54	;GRAPHIC =  # # #  	ASCII(T)
-db #72	;GRAPHIC =  ###  # 	ASCII(r)
-db #6f	;GRAPHIC =  ## ####	ASCII(o)
-db #6e	;GRAPHIC =  ## ### 	ASCII(n)
-db #69	;GRAPHIC =  ## #  #	ASCII(i)
-db #78	;GRAPHIC =  ####   	ASCII(x)
-db #20	;GRAPHIC =   #     
-db #28	;GRAPHIC =   # #   	ASCII(()
-db #63	;GRAPHIC =  ##   ##	ASCII(c)
-db #29	;GRAPHIC =   # #  #	ASCII())
-db #20	;GRAPHIC =   #     
-db #32	;GRAPHIC =   ##  # 	ASCII(2)
-db #30	;GRAPHIC =   ##    	ASCII(0)
-db #31	;GRAPHIC =   ##   #	ASCII(1)
-db #30	;GRAPHIC =   ##    	ASCII(0)
+	jp main
+copyr:	
+	da ' Tronix (c) 2010 '
+main:
+;	high
+	cls
+			; check emulator initialization:
+			; all registers must be set to zeroes
+	se vf,0  	
+	jp errorI	
+	se ve,0 	
+	jp errorI	
+	se vd,0 
+	jp errorI
+	se vc,0
+	jp errorI
+	se vb,0
+	jp errorI
+	se va,0
+	jp errorI
+	se v9,0
+	jp errorI
+	se v8,0
+	jp errorI
+	se v7,0
+	jp errorI
+	se v6,0
+	jp errorI
+	se v5,0
+	jp errorI
+	se v4,0
+	jp errorI
+	se v3,0
+	jp errorI
+	se v2,0
+	jp errorI
+	se v1,0
+	jp errorI
+	se v0,0
+	jp errorI
+	
+	ld v0,0		; fill all registers by hands
+	ld v1,1		; but we don't know, how work FX65 instruction
+	ld v2,2
+	ld v3,3
+	ld v4,4
+	ld v5,5
+	ld v6,6
+	ld v7,7
+	ld v8,8
+	ld v9,9
+	ld va,#a
+	ld vb,#b
+	ld vc,#c
+	ld vd,#d
+	ld ve,#e
+	ld vf,#f
 
-begin_program:   ; == START OF CODE BLOCK ==
-cls
-se vf, #00
-jp display_error_ini
-se ve, #00
-jp display_error_ini
-se vd, #00
-jp display_error_ini
-se vc, #00
-jp display_error_ini
-se vb, #00
-jp display_error_ini
-se va, #00
-jp display_error_ini
-se v9, #00
-jp display_error_ini
-se v8, #00
-jp display_error_ini
-se v7, #00
-jp display_error_ini
-se v6, #00
-jp display_error_ini
-se v5, #00
-jp display_error_ini
-se v4, #00
-jp display_error_ini
-se v3, #00
-jp display_error_ini
-se v2, #00
-jp display_error_ini
-se v1, #00
-jp display_error_ini
-se v0, #00
-jp display_error_ini
-ld v0, #00
-ld v1, #01
-ld v2, #02
-ld v3, #03
-ld v4, #04
-ld v5, #05
-ld v6, #06
-ld v7, #07
-ld v8, #08
-ld v9, #09
-ld va, #0a
-ld vb, #0b
-ld vc, #0c
-ld vd, #0d
-ld ve, #0e
-ld vf, #0f
-ld I, #0478
-ld vf, [I]
-se vf, #00
-jp loc_03f8
-se ve, #00
-jp loc_03f8
-se vd, #00
-jp loc_03f8
-se vc, #00
-jp loc_03f8
-se vb, #00
-jp loc_03f8
-se va, #00
-jp loc_03f8
-se v9, #00
-jp loc_03f8
-se v8, #00
-jp loc_03f8
-se v7, #00
-jp loc_03f8
-se v6, #00
-jp loc_03f8
-se v5, #00
-jp loc_03f8
-se v4, #00
-jp loc_03f8
-se v3, #00
-jp loc_03f8
-se v2, #00
-jp loc_03f8
-se v1, #00
-jp loc_03f8
-se v0, #00
-jp loc_03f8
-ld v0, #00
-ld f, v0
-ld v0, [I]
-sne v0, #00
-jp loc_0402
-ld I, #0452
-ld ve, #7b
-ld b, ve
-ld v2, [I]
-se v0, #01
-jp loc_03c6
-se v1, #02
-jp loc_03c6
-se v2, #03
-jp loc_03c6
-ld ve, #02
-ld vf, #00
-ld v0, #fe
-ld v1, #01
-add v0, v1
-se vf, #00
-jp loc_040c
-ld ve, #03
-se v0, #ff
-jp loc_040c
-ld ve, #04
-add v0, v1
-se vf, #01
-jp loc_040c
-ld ve, #05
-se v0, #00
-jp loc_040c
-ld v0, #01
-ld ve, #06
-ld vf, #00
-sub v0, v1
-se vf, #01
-jp loc_040c
-ld ve, #07
-se v0, #00
-jp loc_040c
-ld ve, #08
-sub v0, v1
-se vf, #00
-jp loc_040c
-ld ve, #09
-se v0, #ff
-jp loc_040c
-ld v0, #01
-ld ve, #0a
-ld vf, #00
-subn v0, v1
-se vf, #01
-jp loc_040c
-ld ve, #0b
-se v0, #00
-jp loc_040c
-ld ve, #0c
-ld v0, #01
-ld v1, #00
-subn v0, v1
-se vf, #00
-jp loc_040c
-ld ve, #0d
-se v0, #ff
-jp loc_040c
-ld v0, #ff
-ld ve, #0e
-ld vf, #00
-shr v0
-se vf, #01
-jp loc_040c
-ld ve, #0f
-se v0, #7f
-jp loc_040c
-ld v0, #40
-ld ve, #10
-shr v0
-se vf, #00
-jp loc_040c
-ld ve, #11
-se v0, #20
-jp loc_040c
-ld ve, #12
-ld vf, #01
-shl v0
-se vf, #00
-jp loc_040c
-ld ve, #13
-se v0, #40
-jp loc_040c
-ld v0, #fa
-ld ve, #14
-shl v0
-se vf, #01
-jp loc_040c
-ld ve, #15
-se v0, #f4
-jp loc_040c
-ld v1, #7b
-ld ve, #16
-xor v0, v1
-se v0, #8f
-jp loc_040c
-ld I, #0488
-ld v7, [I]
-ld r, v7 ; superchip-8 HP flag instruction
-ld I, #0478
-ld v7, [I]
-ld v7, r ; superchip-8 flag instruction
-ld ve, #17
-se v7, #07
-jp loc_040c
-se v6, #06
-jp loc_040c
-se v5, #05
-jp loc_040c
-se v4, #04
-jp loc_040c
-se v3, #03
-jp loc_040c
-se v2, #02
-jp loc_040c
-se v1, #01
-jp loc_040c
-se v0, #00
-jp loc_040c
-ld ve, #18
-ld I, #0ffe
-ld v0, #02
-ld vf, #00
-add I, v0
-se vf, #01
-jp loc_040c
-jp loc_0490
-loc_03c6:   ; == START OF CODE BLOCK ==
-call draw_error_on_screen
-add v0, #0a
-ld v2, #0b
-ld f, v2
-drw v0, v1, #5
-add v0, #05
-ld v2, #0c
-ld f, v2
-drw v0, v1, #5
-add v2, #01
-ld f, v2
-add v0, #05
-drw v0, v1, #5
-jp loop_forever_do_nothing
+			; check FX65 (load VX from mem) instruction
 
-display_error_ini:   ; == START OF CODE BLOCK ==
-call draw_error_on_screen
-add v0, #0a
-ld I, sprite_letter_I
-drw v0, v1, #5
-add v0, #06
-ld I, #0469
-drw v0, v1, #5
-add v0, #06
-ld I, sprite_letter_I
-drw v0, v1, #5
-jp loop_forever_do_nothing
-loc_03f8:   ; == START OF CODE BLOCK ==
-call draw_error_on_screen
-add v0, #0a
-ld I, sprite_letter_O
-drw v0, v1, #5
-jp loop_forever_do_nothing
-loc_0402:   ; == START OF CODE BLOCK ==
-call draw_error_on_screen
-add v0, #0a
-ld I, sprite_letter_1
-drw v0, v1, #5
-jp loop_forever_do_nothing
-loc_040c:   ; == START OF CODE BLOCK ==
-call draw_error_on_screen
-call loc_0432
-jp loop_forever_do_nothing
+	ld I, nullreg   ; fill all reg with null
+	ld vf, [I]	
 
-; draws ERROR on top of screen
-draw_error_on_screen:   ; == START OF CODE BLOCK ==
-ld v0, #00
-ld v1, #00
-ld I, sprite_letter_E
-drw v0, v1, #5
-add v0, #05
-ld I, #046e
-drw v0, v1, #5
-add v0, #06
-drw v0, v1, #5
-ld I, sprite_letter_O
-add v0, #06
-drw v0, v1, #5
-ld I, #046e
-add v0, #05
-drw v0, v1, #5
-ret
-loc_0432:   ; == START OF CODE BLOCK ==
-ld v4, v0
-add v4, #0a
-ld v5, v1
-ld I, #0452
-ld b, ve
-ld v2, [I]
-ld f, v0
-drw v4, v5, #5
-add v4, #06
-ld f, v1
-drw v4, v5, #5
-add v4, #06
-ld f, v2
-drw v4, v5, #5
-ret
+	se vf,0  	
+	jp error1	; oh shi... FX65 don't work, print error number
+	se ve,0 	; with special error1 function, not used FX65
+	jp error1	; and 8x5 font. Just draw sprites: ERROR 0
+	se vd,0 
+	jp error1
+	se vc,0
+	jp error1
+	se vb,0
+	jp error1
+	se va,0
+	jp error1
+	se v9,0
+	jp error1
+	se v8,0
+	jp error1
+	se v7,0
+	jp error1
+	se v6,0
+	jp error1
+	se v5,0
+	jp error1
+	se v4,0
+	jp error1
+	se v3,0
+	jp error1
+	se v2,0
+	jp error1
+	se v1,0
+	jp error1
+	se v0,0
+	jp error1
+			; Okay, FX65 instruchion ok, we can use it
 
-; end of program
-loop_forever_do_nothing:   ; == START OF CODE BLOCK ==
-jp loop_forever_do_nothing
 
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
+			; Check font 8x5 loaded. We need it for draw
+			; error numbers.
+	
+	ld v0,0		; symbol 0
+	ld f,v0		; I pos to symbol 0
+	ld v0,[I]	; load to v0 first 8 bits
+	sne v0,0
+	jp error_font	; Write ERROR 1 with sprites.
 
-; letter 1
-sprite_letter_1:
-db #10	;GRAPHIC =    #    
-db #30	;GRAPHIC =   ##    	ASCII(0)
-db #10	;GRAPHIC =    #    
-db #10	;GRAPHIC =    #    
-db #10	;GRAPHIC =    #    
+			; So, font loaded, now we can print error numbers
+			; using system font
 
-; letter O
-sprite_letter_O:
-db #f0	;GRAPHIC = ####    
-db #90	;GRAPHIC = #  #    
-db #90	;GRAPHIC = #  #    
-db #90	;GRAPHIC = #  #    
-db #f0	;GRAPHIC = ####    
+			; Test BCD instructions. We need it for print
+	ld I, Score	; errors number
+	ld ve,123       
+	ld B, ve
+	ld v2, [I]
+	se v0,1
+	jp errorBCD	; BCD error. We can't draw error number
+	se v1,2		; but draw_number procedure use BCD
+	jp errorBCD	; so, we just draw ERROR BCD on the screen
+	se v2,3
+	jp errorBCD
 
-; letter E
-sprite_letter_E:
-db #f0	;GRAPHIC = ####    
-db #80	;GRAPHIC = #       
-db #f0	;GRAPHIC = ####    
-db #80	;GRAPHIC = #       
-db #f0	;GRAPHIC = ####    
+			; Check math operation
+			; check addition
+	ld ve, 2	; set error = 2
+	ld vf, 0	; set carry flag to null
+	ld v0, 254
+	ld v1, 1
+	add v0, v1	; add without overflow. VF must be 0
+	se vf,0
+	jp error
+	ld ve, 3	; set error = 3
+	se v0,255	; check addition result
+	jp error
 
-; letter I
-sprite_letter_I:
-db #f8	;GRAPHIC = #####   
-db #20	;GRAPHIC =   #     
-db #20	;GRAPHIC =   #     
-db #20	;GRAPHIC =   #     
-db #f8	;GRAPHIC = #####   
+	ld ve, 4	; set error = 4
+	add v0, v1	; add with overflow. VF must be 1
+	se vf,1
+	jp error
+	ld ve, 5	; set error = 5
+	se v0, 0	; check addition result
+	jp error
+			; Test substraction. V1 = 1
+	ld v0, 1
+	ld ve, 6
+	ld vf, 0	; set flag to 0
+	sub v0, v1	; sub v0-v1. VF must be 1. result must be 0
+	se vf, 1
+	jp error
+	ld ve, 7	; set error = 7
+	se v0, 0
+	jp error
 
-; letter N
-sprite_letter_N:
-db #88	;GRAPHIC = #   #   
-db #c8	;GRAPHIC = ##  #   
-db #a8	;GRAPHIC = # # #   
-db #98	;GRAPHIC = #  ##   
-db #88	;GRAPHIC = #   #   
+	ld ve, 8	; set error = 8
+	sub v0,v1	; sub 0-1. VF must be 0. result must be 255
+	se vf, 0
+	jp error
+	ld ve, 9	; set error = 9
+	se v0,255
+	jp error
 
-; letter R
-sprite_letter_R:
-db #e0	;GRAPHIC = ###     
-db #90	;GRAPHIC = #  #    
-db #e0	;GRAPHIC = ###     
-db #90	;GRAPHIC = #  #    
-db #88	;GRAPHIC = #   #   
+	ld v0,1
+	ld ve,10	; set error = 10
+	ld vf, 0 	; set carry to 0
+	subn v0,v1	; substract v1-v0. VF must be 1. Result must be 0.
+	se vf, 1
+	jp error
+	ld ve, 11	; set error = 11
+	se v0, 0
+	jp error
 
-; letter K
-sprite_letter_K:
-db #90	;GRAPHIC = #  #    
-db #a0	;GRAPHIC = # #     
-db #c0	;GRAPHIC = ##      
-db #a0	;GRAPHIC = # #     
-db #90	;GRAPHIC = #  #    
+	ld ve, 12	; set error = 12
+	ld v0,1
+	ld v1,0
+	subn v0,v1	; substract v1-v0. VF must be 0. Result must be 255
+	se vf, 0
+	jp error
+	ld ve, 13	; set error = 13
+	se v0,255
+	jp error
+			; Test SHR
+	ld v0, 255
+	ld ve, 14	; set error = 14
+	ld vf, 0	; set VF = 0
+	shr v0		; 255 shr 1. VF must be 1, result = 127
+	se vf,1
+	jp error
+	ld ve, 15	; set error = 15
+	se v0,127
+	jp error
 
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #00	;GRAPHIC =         
-db #01	;GRAPHIC =        #
-db #02	;GRAPHIC =       # 
-db #03	;GRAPHIC =       ##
-db #04	;GRAPHIC =      #  
-db #05	;GRAPHIC =      # #
-db #06	;GRAPHIC =      ## 
-db #07	;GRAPHIC =      ###
-loc_0490:   ; == START OF CODE BLOCK ==
-ld v0, #00
-ld v1, #00
-ld f, v0
-drw v0, v1, #5
-add v0, #05
-ld I, #0473
-drw v0, v1, #5
-jp loop_forever_do_nothing
+	ld v0, 64
+	ld ve, 16	; set error = 16
+	shr v0		; 64 shr 1. VF must be 0, result 32
+	se vf, 0
+	jp error
+	ld ve,17	; set error = 17
+	se v0,32
+	jp error
+			; Test SHL
+	ld ve, 18	; set error = 18
+	ld vf, 1	; set flag to 1
+	shl v0		; 32 shl 1. VF = 0. Result = 64
+	se vf, 0
+	jp error
+	ld ve, 19	; set error = 19
+	se v0,64
+	jp error
+
+	ld v0,250
+	ld ve, 20	; set error = 20
+	shl v0		; 250 * 2. VF must be 1, Result 244 (?)
+	se vf, 1
+	jp error
+	ld ve, 21	; set error = 21
+	se v0,244
+	jp error
+
+			; Check for unofficial XOR command
+	ld v1, 123
+	ld ve,22	; set error = 22
+	xor v0,v1
+	se v0,143
+	jp error
+
+			; Check for HP48 flags save/load
+			; FX75 and FX85 instructions
+
+	ld I, fillreg	; fill V0-V7 registers with 0,1,2,3,4,5,6,7
+	ld v7, [I]
+	ld R, v7   	; save all reg to HP48 flags
+	ld I, nullreg   ; fill V0-V7 with nulls
+	ld v7, [I]
+	ld v7, R	; restore all registers from HP48 flags
+	ld ve,23	; set error = 23
+	se v7,7		; check FX85 intstruction worked
+	jp error
+	se v6,6
+	jp error
+	se v5,5
+	jp error
+	se v4,4
+	jp error
+	se v3,3
+	jp error
+	se v2,2
+	jp error
+	se v1,1
+	jp error
+	se v0,0
+	jp error
+
+			; Check FX1E (I = I + VX) buffer overflow
+	ld ve, 24	; set error = 24
+	ld I, #FFE	; move to #FFE offset
+	ld v0, 2
+	ld vf, 0	; set flag to zero
+	add I, v0	; make buffer overflow (#FFE+2 = #1000)
+	se vf, 1	; if flag set, thats OK
+	jp error
+
+	jp passed	; all tests passed
+
+errorBCD:
+	call draw_error
+	add v0,10
+	ld v2, #B	; B symbol
+	ld f, v2
+	drw v0,v1,5
+	add v0,5
+	ld v2, #c	; C symbol	
+	ld F, v2
+	drw v0,v1,5
+	add v2,1	; D symbol
+	ld F, v2
+	add v0,5
+	drw v0,v1,5
+	jp fin
+
+errorI:
+	call draw_error
+	add v0,10
+	ld I, symbolI
+	drw v0,v1,5
+	add v0, 6
+	ld I, symbolN
+	drw v0,v1,5
+	add v0, 6
+	ld I, symbolI
+	drw v0,v1,5
+	jp fin
+
+error1:
+	call draw_error
+	add v0,10
+	ld I, Symbol0
+	drw v0,v1,5
+	jp fin
+
+error_font:
+	call draw_error
+	add v0,10
+	ld I, Symbol1
+	drw v0,v1,5
+	jp fin
+
+error:			; in VE - error number
+	call draw_error
+	call draw_number
+	jp fin
+	
+
+;// PROCEDURE
+draw_error:	
+	ld v0,0
+	ld v1,0
+	ld I,symbolE	; E symbol
+	drw v0, v1, 5
+	add v0, 5
+	ld I,symbolR	; R symbol
+	drw v0, v1, 5
+	add v0, 6
+	drw v0, v1, 5
+	ld I,symbol0  	; O symbol
+	add v0, 6
+	drw v0, v1, 5
+	ld I,symbolR 	; R symbol
+	add v0, 5
+	drw v0, v1, 5
+	RET
+
+;// PROCEDURE
+draw_number:
+	ld v4, v0
+	add v4, 10
+	ld v5, v1
+    	LD  I,  Score   ; Get address of Score
+    	LD  B,  VE      ; Stores in memory BCD representation of VE
+    	LD  V2, [I]     ; Reads V0...V2 in memory, so the score
+    	LD  F,  V0      ; I points to hex char in V1, so the 1st score char
+    	DRW V4, V5, 5   ; Draw 8*5 sprite at (V4,V5) from M[I], so char V1
+    	ADD V4, 6     ; Set X to the X coord. of 2nd score char
+	ld f, v1
+	drw v4, v5, 5
+	add v4, 6
+    	LD  F, V2       ; I points to hex char in V2, so 2nd score char
+    	DRW V4, V5, 5   ; Draw 8*5 sprite at (V4,V5) from M[I], so char V2
+	RET
+
+fin:	jp fin
+
+Score:
+	dw #0000
+	db 0
+symbol1:
+	db $...1....
+	db $..11....
+	db $...1....
+	db $...1....
+	db $...1....
+symbol0:
+	dw #F090
+	dw #9090
+	db #f0
+symbolE:
+	dw #F080
+	dw #F080
+	db #F0
+symbolI:
+	db $11111...
+	db $..1.....
+	db $..1.....
+	db $..1.....
+	db $11111...
+symbolN:
+	db $1...1...
+	db $11..1...
+	db $1.1.1...	
+	db $1..11...
+	db $1...1...
+symbolR:
+	db $111.....
+	db $1..1....
+	db $111.....
+	db $1..1....
+	db $1...1...
+symbolK:
+	db $1..1....
+	db $1.1.....
+	db $11......
+	db $1.1.....
+	db $1..1....
+
+NullReg:
+	dw #0000
+	dw #0000
+	dw #0000
+	dw #0000
+	dw #0000
+	dw #0000
+	dw #0000
+	dw #0000
+
+FillReg:
+	dw #0001
+	dw #0203
+	dw #0405
+	dw #0607
+
+passed:
+	ld v0,0
+	ld v1,0
+	ld F,v0 ; O symbol
+	drw v0, v1, 5
+	add v0, 5
+	ld I, SymbolK
+	drw v0, v1, 5
+	jp fin
