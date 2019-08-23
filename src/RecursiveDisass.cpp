@@ -1,7 +1,15 @@
 #include <stdio.h>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 #include "RecursiveDisass.h"
+#include "Util.h"
+
+#ifdef RDISASS_DEBUG
+   #define DISASSTRACE std::cerr
+#else
+   #define DISASSTRACE if(0) std::cerr
+#endif
 
 #define ROM_START_ADDRESS  0x200
 
@@ -16,6 +24,8 @@ void RecursiveDisass::loadRomByte(unsigned char romData)
 
 void RecursiveDisass::decodeCodeSegment(unsigned int startAddress)
 {
+   DISASSTRACE << "decodeCodeSegment(" << Util::toHex16(startAddress) << ")" << std::endl;
+
    theEndOfBlockDetected = false;
    theAddress = startAddress;
 
@@ -44,8 +54,7 @@ void RecursiveDisass::decodeCodeSegmentBody()
       return;
    }
 
-   //if (theCodeBytes[theAddress])
-   if (theDisassembly.find(theAddress - ROM_START_ADDRESS) != theDisassembly.end() )
+   if (theDisassembly.find(theAddress) != theDisassembly.end() )
    {
       // We have reached an instruction that has already been decoded
       theEndOfBlockDetected = true;
@@ -55,6 +64,11 @@ void RecursiveDisass::decodeCodeSegmentBody()
    unsigned char opCode[2];
    opCode[0] = theRomData[theAddress - ROM_START_ADDRESS];
    opCode[1] = theRomData[theAddress - ROM_START_ADDRESS + 1];
+
+   DISASSTRACE << Util::charToHex8(opCode[0]) << " "
+               << Util::charToHex8(opCode[1]) << " @"
+               << Util::toHex16(theAddress) << std::endl;
+
    decodeInstruction(&opCode[0]);
 
 }

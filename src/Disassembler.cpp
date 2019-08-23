@@ -6,6 +6,7 @@
 #
 #include <stdio.h>
 #include "Disassembler.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -393,7 +394,7 @@ void Disassembler::insEnterHighResMode()
 void Disassembler::insSaveHp48Flags(unsigned char reg)
 {
    ostringstream ss;
-   ss << "save_hp_flags" << hex << reg;
+   ss << "ld r, v" << Util::charToNibble(reg) << " ; superchip-8 HP flag instruction";
 
    theDisassembly[theAddress] = ss.str();
 }
@@ -401,7 +402,7 @@ void Disassembler::insSaveHp48Flags(unsigned char reg)
 void Disassembler::insLoadHp48Flags(unsigned char reg)
 {
    ostringstream ss;
-   ss << "load_hp_flags" << hex << reg;
+   ss << "ld v" << Util::charToNibble(reg) << ", r ; superchip-8 flag instruction";
 
    theDisassembly[theAddress] = ss.str();
 }
