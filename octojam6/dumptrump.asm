@@ -15,66 +15,11 @@
 
 clear
 
-v3 := 0
-v4 := 0
-
-draw-0
-draw-1
-draw-2
-draw-3
-draw-4
-draw-5
-draw-6
-draw-7
-draw-8
-draw-9
-
-v3 := 0
-v4 += 6
-
-draw-A
-draw-B
-draw-C
-draw-D
-draw-E
-draw-F
-draw-G
-draw-H
-draw-I
-draw-J
-
-v3 := 0
-v4 += 6
-
-draw-K
-draw-L
-draw-M
-draw-N
-draw-O
-draw-P
-draw-Q
-draw-R
-draw-S
-draw-T
-
-v3 := 0
-v4 += 6
-
-draw-U
-draw-V
-draw-W
-draw-X
-draw-Y
-draw-Z
-
-v3 := 1
-delay-seconds
-
 
 clear
 hires
 
-v3 := 41
+v3 := 75
 v4 := 0
 
 draw-D
@@ -90,8 +35,79 @@ draw-U
 draw-M
 draw-P
 
+# Scroll dump trump down to line 4 above from bottom
+# screen is 64 high, letters are 5 high.  64 - 5 - 4
+v5 := 55
+loop
+  scroll-down 1
+	
+	v3 := 2
+	delay-frac-second
+	v5 += -1
+	
+	if v5 > 0 then again
+	
+# Draw a line on the screen
+v0 := 0
+v1 := 60
+i := wide-line
+sprite v0 v1 1
 
+loop
+  v0 += 8
+	sprite v0 v1 1
+  if v0 < 120 then again
+	
+# enter to color mode for glorious graphics!
 plane 3
+
+# draw trump at the bottom of the screen 64 - 4 -16
+v4 := 44
+v3 := 5
+
+draw-spin-sprite
+
+# We are going to draw 2 meters, each will be 31 (prime) pixels wide
+# Draw first one at 5,8
+# Draw second one at 5, 17
+v0 := 5
+v1 := 8
+i := wide-line
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+
+v0 := 5
+v1 := 10
+i := wide-line
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+
+
+v0 := 5
+v1 := 17
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+
+v0 := 5
+v1 := 19
+i := wide-line
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+v0 += 8
+sprite v0 v1 1
+
+
+jump endprogram
 
 
 
@@ -165,7 +181,7 @@ scroll-down-title-screen
 jump endprogram
 
 : spinState
-0x00
+0x07
 
 : erase-spin-sprite
 # r3 = x, r4 = y, clobbers r2, r1
@@ -220,7 +236,8 @@ return
 
 
 
-
+: wide-line
+0xff 0xff
 
 : trump-sprite
 0x38 0xA2 0xFF 0x81 0x00 0x00 0x00 0x00
