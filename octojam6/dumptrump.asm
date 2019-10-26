@@ -1,23 +1,16 @@
 
 
-
-
-
-
-
-
-
-
+:const trumpXCoord 15
+:const trumpEraseXCoord 11
 
 
 
 : main
 
-clear
-
 
 clear
 hires
+plane 1
 
 v3 := 75
 v4 := 0
@@ -84,7 +77,7 @@ plane 3
 
 # draw trump at the bottom of the screen 64 - 4 -16
 v4 := 44
-v3 := 5
+v3 := trumpXCoord
 
 draw-spin-sprite
 
@@ -215,79 +208,186 @@ loop
 v7 += -5    # power
 v8 += -5    # angle
 
+v0 := 0
+v1 := 0
+draw-height-on-screen
+
+#******************************************************************************
+# Kick trump animation
+#******************************************************************************
 
 
-# Code to make a falling / spinning trump
 
 
-vA := 10
-vB := 0
 
-v5 := 50
+
+
+
+#******************************************************************************
+# Kick calculations and what not (v7 and v8 only things we know at this point)
+#******************************************************************************
+vc >>= v8
+vc >>= vc  # height lookup table pos (starting pos)
+vb := 8
+vb -= vc   # acceleration lookup table pos (starting pos)
+va := v7
+#va >>= va
+va >>= va  # scrolls per sec
+vd := 0    # score
+
+
+# erase trump before going into loop (since he hasn't scrolled yet)
+v3 := trumpXCoord
+v4 := 44
+erase-spin-sprite 
+
+: flying-loop-start
+
+i := height-add-lookup-table
+i += vb
+load v0
+v2 := v0
+
+vc := 0
 loop
-  v3 := vA
-	v4 := vB
-  draw-spin-sprite
-
-  # short delay
-  v3 := 6
-  delay-frac-second
-
-  v3 := vA
-	v4 := vB
-  erase-spin-sprite
-
-  vB += 1
-  v5 += -1
+	# erase the current height
+	i := current-height
+	load v1
 	
-	if v5 > 0 then again
+	draw-height-on-screen
+
+	# Figure out current height
+	i := current-height
+	load v1
+	
+	# If he is on screen, erase him
+	if v0 != 0 then jump trump-not-on-screen-erase
+	if v1 > 44 then jump trump-not-on-screen-erase    # don't erase him if he is above the screen
+	if v1 == 0 then jump trump-not-on-screen-erase    # don't erase him if he is on ground
+	
+  # map the height to x,y coordinates on screen
+	v3 := trumpXCoord
+	v4 := 44
+	v4 -= v1
+	erase-spin-sprite  # clobbers the v0 and v1
+	
+	i := current-height
+	load v1	
+	
+	: trump-not-on-screen-erase
+	
+	# update his height
+	
+	if vb <= 7 then big-addition
+	if vb > 7 then big-subtraction
+
+	scroll-left
+
+	i := current-height
+	save v1
+	
+	draw-height-on-screen
+	
+	i := current-height
+	load v1
+	
+	# If he is on screen, draw him
+	if v0 != 0 then jump trump-not-on-screen-draw
+	if v1 > 44 then jump trump-not-on-screen-draw
+	
+	v3 := trumpXCoord
+	v4 := 44
+	v4 -= v1
+	draw-spin-sprite  # clobbers the v0 and v1
+	
+	
+	
+	
+	
+	
+	
+	
+	: trump-not-on-screen-draw
+	
+	
+	vc += 1
+	vd += 1
+	
+	v0 := 1
+	v0 &= vd
+	if v0 == 0 then draw-new-terrain
+	
+	# scroll-left
+	
+	v3 := 5
+	# v3 -= va
+	delay-frac-second
+	
+	if vc < va then again
 
 
 
-jump endprogram
+vb += 1
+
+i := current-height
+load v1
+
+if v0 != 0 then jump flying-loop-start
+if v1 != 0 then jump flying-loop-start
 
 
 
 
 
+#******************************************************************************
+# Display score
+#******************************************************************************
 
-i := spinner-frame-3
-sprite v6 v7 0
+plane 1
 
+v3 := 74
+v4 := 12
 
-v3 := 2
-delay-seconds
+draw-S
+draw-C
+draw-O
+draw-R
+draw-E
 
+i := score
+bcd vd
 
-: scroll-down-title-screen
-v2 := 0
-loop
-v3 := 6
-delay-frac-second
-scroll-down 1
-v2 += 1
-while v2 <= 45
-again
+v3 += 9
+i := score
+load v2
+i := hex v0
+sprite v3 v4 5
 
-v2 := 0
-loop
-v3 := 6
-delay-frac-second
-scroll-up 1
-v2 += 1
-while v2 <= 45
-again
+v3 += 5
+i := hex v1
+sprite v3 v4 5
 
-scroll-down-title-screen
+v3 += 5
+i := hex v2
+sprite v3 v4 5
 
-
-
-
-
+plane 3
 
 
 : endprogram
 jump endprogram
+
+
+#******************************************************************************
+#******************************************************************************
+#******************************************************************************
+#           Functions
+#******************************************************************************
+#******************************************************************************
+#******************************************************************************
+
+
+
 
 : spinState
 0x07
@@ -405,6 +505,123 @@ return
 0x00 0x00 0x00 0x00 0x00 0xf0 0x31 0xd8  0x31 0xf8 0x09 0x34 0x05 0x9c 0x00 0xdc
 0x01 0x78 0x06 0x00 0x86 0x40 0x88 0x20  0xc0 0x18 0x00 0x18 0x10 0x00 0x1c 0x00
 
+: height-add-lookup-table
+21 16 11 7 4 2 1 0
+: height-sub-lookup-table
+1 2 4 7 11 16 21
+
+: current-height
+0x00 0x00
+
+: current-distance
+0x00 0x00
+
+: score
+0x00 0x00 0x00
+
+: height-bcd-upperconv
+0 
+: height-bcd-thousands
+0 
+: height-bcd-hundreds
+0
+
+: height-bcd-lowerconv
+0 
+: height-bcd-tens
+0
+: height-bcd-ones
+0
+
+: draw-height-on-screen
+# height in v0 v1
+i := height-bcd-upperconv
+bcd v0
+v0 := 3
+i += v0
+bcd v1
+
+plane 1
+
+v3 := 80
+v4 := 5
+draw-H
+draw-I
+draw-G
+draw-H
+
+v3 += 4
+
+i := height-bcd-thousands
+load v0
+i := hex v0
+sprite v3 v4 5
+v3 += 5
+
+i := height-bcd-hundreds
+load v0
+i := hex v0
+sprite v3 v4 5
+v3 += 5
+
+i := height-bcd-tens
+load v0
+i := hex v0
+sprite v3 v4 5
+v3 += 5
+
+i := height-bcd-ones
+load v0
+i := hex v0
+sprite v3 v4 5
+
+plane 3
+
+return
+
+
+
+
+
+: draw-new-terrain
+v1 := random 1
+
+jump draw-blank-terrain
+
+
+
+
+: draw-blank-terrain
+plane 1
+v0 := 120
+v1 := 60
+i := wide-line
+sprite v0 v1 1
+plane 3
+return
+
+
+#******************************************************************************
+# 16-bit addition (base 100)
+#******************************************************************************
+# v0, v1 = 16-bit number, and result
+# v2 = 256-bit number 
+
+: big-addition
+v1 += v2
+if v1 < 100 then return
+v1 += -100
+v0 += 1
+return
+
+: big-subtraction
+# v0, v1 = 16-bit number, and result
+# v2 = 256-bit number 
+v1 -= v2
+if vf == 1 then return
+v1 += 100
+v0 += -1
+return
 
 
 #******************************************************************************
