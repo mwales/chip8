@@ -183,7 +183,7 @@ loop
 	delay := vB
 	
 	: waiting-for-keypress
-	if vB key then time-to-dump-trump
+	if vB key then jump time-to-dump-trump
 	vC := delay
 	if vC > 0 then jump waiting-for-keypress
 	
@@ -214,11 +214,7 @@ draw-height-on-screen
 # Kick trump animation
 #******************************************************************************
 
-
-
-
-
-
+punch-animation
 
 
 #******************************************************************************
@@ -226,7 +222,7 @@ draw-height-on-screen
 #******************************************************************************
 vc >>= v8
 vc >>= vc  # height lookup table pos (starting pos)
-vb := 8
+vb := 7
 vb -= vc   # acceleration lookup table pos (starting pos)
 va := v7
 #va >>= va
@@ -298,13 +294,7 @@ loop
 	v4 -= v1
 	draw-spin-sprite  # clobbers the v0 and v1
 	
-	
-	
-	
-	
-	
-	
-	
+		
 	: trump-not-on-screen-draw
 	
 	
@@ -393,6 +383,9 @@ save v2
 
 jump main
 
+
+
+
 #******************************************************************************
 #******************************************************************************
 #******************************************************************************
@@ -400,6 +393,43 @@ jump main
 #******************************************************************************
 #******************************************************************************
 #******************************************************************************
+
+: boxing-glove-sprite  # 11 rows
+0x1C 0x34 0x67 0x49 0xC3 0xC1 0xC3 0xC1
+0x43 0x41 0x3E 0x1C 0x34 0x67 0x49 0x43
+0x41 0x43 0x41 0x43 0x41 0x3E
+
+: boxing-glove-erase-sprite # 11 rows
+# this sprite doesn't draw/erase the arm
+0x1C 0x34 0x67 0x49 0x43 0x41 0x43 0x41
+0x43 0x41 0x3E 0x1C 0x34 0x67 0x49 0x43
+0x41 0x43 0x41 0x43 0x41 0x3E
+
+
+: punch-animation
+v1 := 0
+v2 := 40
+i := boxing-glove-sprite
+sprite v1 v2 11
+
+v3 := 5
+delay-frac-second
+
+loop
+  i := boxing-glove-erase-sprite
+	sprite v1 v2 11
+	v1 += 1
+	i := boxing-glove-sprite
+	sprite v1 v2 11
+	
+	
+	v3 := 1
+	delay-frac-second
+	
+	if v1 < 11 then again
+	
+return
+
 
 
 
@@ -534,6 +564,8 @@ return
 : score
 0x00 0x00 0x00
 
+# I'm basically storing the height as base-100 number.  Each byte could represent 255-values,
+# but in my program, each bytes is 0-99.  I can easily print out base-100 numbers
 : height-bcd-upperconv
 0 
 : height-bcd-thousands
@@ -558,12 +590,14 @@ bcd v1
 
 plane 1
 
-v3 := 80
+v3 := 69
 v4 := 5
 draw-H
+draw-E
 draw-I
 draw-G
 draw-H
+draw-T
 
 v3 += 4
 
@@ -614,11 +648,18 @@ return
 0x42 0x42 0x42 0x42 0x42 0x42 0x42 0x42
 0x42 0x7E
 
+: flag-sprite   # 12 rows
+0x1E 0x1E 0x1E 0x1E 0x1E 0x40 0x40 0x00
+0x00 0x40 0xFF 0x00 0x66 0x66 0x66 0x66
+0x66 0x40 0x40 0x40 0x40 0x40 0x40 0x40 
+
+
 : draw-new-terrain
 v1 := random 0x0f
 if v1 == 0 then jump draw-wall
 if v1 == 1 then jump draw-dumpster-fire
 if v1 == 2 then jump draw-tree
+if v1 == 3 then jump draw-flag
 jump draw-blank-terrain
 
 
@@ -635,30 +676,31 @@ plane 3
 return
 
 : draw-dumpster-fire
-plane 3
 v0 := 120
 v1 := 50
 i := dumpster-fire-sprite
 sprite v0 v1 13
-plane 3
 return
 
 : draw-tree
-plane 3
 v0 := 120
 v1 := 49
 i := tree-sprite
 sprite v0 v1 14
-plane 3
 return
 
 : draw-wall
-plane 3
 v0 := 120
 v1 := 50
 i := wall-sprite
 sprite v0 v1 13
-plane 3
+return
+
+: draw-flag
+v0 := 120
+v1 := 50
+i := flag-sprite
+sprite v0 v1 12
 return
 
 #******************************************************************************
@@ -1024,6 +1066,7 @@ return
 0x90 0x90 0xF0 0x60 0x60
 : letter-Z
 0xF0 0x30 0x60 0xC0 0xF0
+
 
 
 
