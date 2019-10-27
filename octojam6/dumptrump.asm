@@ -1,8 +1,6 @@
 
 
 :const trumpXCoord 15
-:const trumpEraseXCoord 11
-
 
 
 : main
@@ -375,8 +373,25 @@ plane 3
 
 
 : endprogram
-jump endprogram
 
+v0 := key
+
+#reset globals
+i := spinState
+v0 := 7
+save v0
+
+v0 := 0
+v1 := 0
+v2 := 0
+
+i := current-distance
+save v1
+
+i := score
+save v2
+
+jump main
 
 #******************************************************************************
 #******************************************************************************
@@ -581,12 +596,31 @@ return
 
 
 
+: dumpster-fire-sprite      # 13 rows
+0x10 0x00 0x58 0x0E 0x28 0x20 0x31 0x7B
+0x7D 0xF9 0x8A 0x8C 0xF8 0x10 0x10 0x5C
+0x7E 0x7E 0x7E 0xFE 0xFC 0xF8 0x00 0x00
+0x00 0x00
 
+: tree-sprite # 14 rows
+0x00 0x10 0x00 0x4A 0x00 0x17 0xC0 0xE2
+0x24 0x24 0x24 0xE7 0x24 0x66 0x3C 0x7E
+0xFF 0xFF 0xFF 0x78 0x7E 0x1E 0x00 0x00
+0x00 0x00 0x00 0x00
+
+: wall-sprite # 13 rows
+0x7E 0x4A 0x4A 0x7E 0x52 0x52 0x7E 0x4A
+0x4A 0x7E 0xD3 0x52 0x7E 0x7E 0x42 0x42
+0x42 0x42 0x42 0x42 0x42 0x42 0x42 0x42
+0x42 0x7E
 
 : draw-new-terrain
-v1 := random 1
-
+v1 := random 0x0f
+if v1 == 0 then jump draw-wall
+if v1 == 1 then jump draw-dumpster-fire
+if v1 == 2 then jump draw-tree
 jump draw-blank-terrain
+
 
 
 
@@ -600,6 +634,32 @@ sprite v0 v1 1
 plane 3
 return
 
+: draw-dumpster-fire
+plane 3
+v0 := 120
+v1 := 50
+i := dumpster-fire-sprite
+sprite v0 v1 13
+plane 3
+return
+
+: draw-tree
+plane 3
+v0 := 120
+v1 := 49
+i := tree-sprite
+sprite v0 v1 14
+plane 3
+return
+
+: draw-wall
+plane 3
+v0 := 120
+v1 := 50
+i := wall-sprite
+sprite v0 v1 13
+plane 3
+return
 
 #******************************************************************************
 # 16-bit addition (base 100)
