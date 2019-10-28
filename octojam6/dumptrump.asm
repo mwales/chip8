@@ -1,4 +1,6 @@
-
+# Michael Wales
+# https://github.com/mwales/chip8
+# Developed using octo (I need to add XO support to my own emulator... one day...)
 
 :const trumpXCoord 15
 
@@ -48,7 +50,22 @@ loop
   v0 += 8
 	sprite v0 v1 1
   if v0 < 120 then again
-	
+
+
+# Draw "Press 5 to" above dump trump
+v3 := 78
+v4 := 47
+
+draw-P
+draw-R
+draw-E
+draw-S
+draw-S
+v3 += 2
+draw-S
+v3 += 2
+draw-T
+draw-O
 	
 # Draw the text for the power and angle bar
 v3 := 44
@@ -493,14 +510,14 @@ return
 : wide-line
 0xff 0xff
 
-: single-red-pixel #uses the byte from single-pixel. what optimization
+: single-red-pixel #uses the byte from single-pixel. what optimization!
 0x80
 : single-pixel
 0x80 0x00
 
 
 
-
+# I made a program on my github to help rotate these sprites
 
 : spinner-frame-0
 0x03 0x80 0x0a 0x20 0x0f 0xf0 0x08 0x10  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
@@ -653,6 +670,15 @@ return
 0x00 0x40 0xFF 0x00 0x66 0x66 0x66 0x66
 0x66 0x40 0x40 0x40 0x40 0x40 0x40 0x40 
 
+: road-sign-sprite # 12 rows
+0x1C 0x3E 0x7F 0x7F 0x7F 0x3E 0x1C 0x08
+0x00 0x00 0x00 0xFF 0x1C 0x22 0x6B 0x7B
+0x73 0x36 0x1C 0x00 0x08 0x08 0x08 0x00
+
+: pooh-pile-sprite #9-rows
+0x00 0x00 0x00 0x00 0x08 0x18 0x3C 0xFF
+0x7E 0xA0 0x40 0x02 0x04 0x0A 0x18 0x3C
+0x3E 0x7E
 
 : draw-new-terrain
 v1 := random 0x0f
@@ -660,6 +686,8 @@ if v1 == 0 then jump draw-wall
 if v1 == 1 then jump draw-dumpster-fire
 if v1 == 2 then jump draw-tree
 if v1 == 3 then jump draw-flag
+if v1 == 4 then jump draw-street-sign
+if v1 == 5 then jump draw-poop
 jump draw-blank-terrain
 
 
@@ -702,6 +730,21 @@ v1 := 50
 i := flag-sprite
 sprite v0 v1 12
 return
+
+: draw-street-sign
+v0 := 120
+v1 := 49
+i := road-sign-sprite
+sprite v0 v1 12
+return
+
+: draw-poop
+v0 := 120
+v1 := 53
+i := pooh-pile-sprite
+sprite v0 v1 9
+return
+
 
 #******************************************************************************
 # 16-bit addition (base 100)
@@ -1066,6 +1109,7 @@ return
 0x90 0x90 0xF0 0x60 0x60
 : letter-Z
 0xF0 0x30 0x60 0xC0 0xF0
+
 
 
 
